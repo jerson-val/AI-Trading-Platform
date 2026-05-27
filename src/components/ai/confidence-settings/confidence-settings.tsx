@@ -1,10 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { useAISettingsStore } from '@/src/store/ai-settings.store'
 
 export default function ConfidenceSettings() {
-  const [confidence, setConfidence] =
-    useState(80)
+
+    const settings =
+      useAISettingsStore(
+        (state) => state.settings
+      )
+
+    const setSettings =
+      useAISettingsStore(
+        (state) => state.setSettings
+      )
 
   return (
     <div className="rounded-xl border border-gray-800 bg-[#111827] p-5">
@@ -25,7 +33,7 @@ export default function ConfidenceSettings() {
           </span>
 
           <span className="text-sm font-semibold text-blue-400">
-            {confidence}%
+            {settings.minConfidence}%
           </span>
         </div>
 
@@ -33,11 +41,12 @@ export default function ConfidenceSettings() {
           type="range"
           min={50}
           max={100}
-          value={confidence}
+          value={settings.minConfidence}
           onChange={(e) =>
-            setConfidence(
-              Number(e.target.value)
-            )
+            setSettings((prev) => ({
+              ...prev,
+              minConfidence: Number(e.target.value)
+            }))
           }
           className="w-full cursor-pointer"
         />

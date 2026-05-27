@@ -1,9 +1,18 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useAuthStore } from '@/src/store/auth.store'
+import { useState } from 'react'
+import { toast } from 'react-hot-toast'
+import FullscreenLoader from '../ui/fullscreen-loader'
+import { settingsStrategyRegistry } from '@/src/strategies/settings-strategy.registry'
+import { useUnsavedChanges } from '@/src/hooks/use-unsaved-changes'
 
 export default function Navbar() {
+  const [isSaving, setIsSaving] =
+    useState(false)
+
+  const pathname = usePathname()
 
   const router = useRouter()
 
@@ -11,9 +20,50 @@ export default function Navbar() {
     (state) => state.logout
   )
 
+  const strategy =
+    settingsStrategyRegistry[
+      pathname
+    ]
+
+  const canSave =
+    !!strategy
+
+  const hasUnsavedChanges =
+    useUnsavedChanges()
+
   const handleLogout = () => {
     logout()
+
     router.push('/login')
+  }
+
+  const handleSave =
+    async () => {
+      if (!strategy) return
+
+      try {
+        setIsSaving(true)
+
+        await strategy.save()
+
+        strategy.markAsSaved()
+
+        toast.success(
+          'Settings saved successfully'
+        )
+      } catch (error) {
+        console.error(error)
+
+        toast.error(
+          'Failed to save settings'
+        )
+      } finally {
+        setIsSaving(false)
+      }
+    }
+
+  if (isSaving) {
+    return <FullscreenLoader />
   }
 
   return (
@@ -25,6 +75,24 @@ export default function Navbar() {
       </div>
 
       <div className="flex items-center gap-4">
+        {canSave && (
+          <button
+            onClick={handleSave}
+            disabled={
+              !hasUnsavedChanges
+            }
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+              hasUnsavedChanges
+                ? 'cursor-pointer bg-blue-600 hover:bg-blue-500'
+                : 'cursor-not-allowed bg-gray-700 text-gray-400'
+            }`}
+          >
+            {hasUnsavedChanges
+              ? 'Save Settings'
+              : 'Saved'}
+          </button>
+        )}
+
         <div className="rounded-lg bg-[#1f2937] px-4 py-2 text-sm">
           BTCUSDT
         </div>
@@ -32,6 +100,7 @@ export default function Navbar() {
         <div className="rounded-lg bg-green-500/20 px-4 py-2 text-sm text-green-400">
           Connected
         </div>
+
         <button
           onClick={handleLogout}
           className="rounded-lg bg-red-500/20 px-4 py-2 text-sm text-red-400 transition-all duration-200 hover:bg-red-500 hover:text-white"

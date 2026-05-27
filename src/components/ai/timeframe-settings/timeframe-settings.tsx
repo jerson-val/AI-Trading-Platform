@@ -1,39 +1,36 @@
 'use client'
 
-import { useState } from 'react'
-
-const availableTimeframes = [
-  '4H',
-  '1H',
-  '15M',
-  '5M',
-]
+import { useAISettingsStore } from '@/src/store/ai-settings.store'
 
 export default function TimeframeSettings() {
-  const [selectedTimeframes, setSelectedTimeframes] =
-    useState([
-      '4H',
-      '1H',
-      '15M',
-    ])
+  const settings =
+    useAISettingsStore(
+      (state) => state.settings
+    )
+
+  const setSettings =
+    useAISettingsStore(
+      (state) => state.setSettings
+    )
 
   const toggleTimeframe = (
-    timeframe: string
+    id: string
   ) => {
-    setSelectedTimeframes((prev) => {
-      if (
-        prev.includes(timeframe)
-      ) {
-        return prev.filter(
-          (tf) => tf !== timeframe
-        )
-      }
+    setSettings((prev) => ({
+      ...prev,
 
-      return [
-        ...prev,
-        timeframe,
-      ]
-    })
+      timeframes:
+        prev.timeframes.map(
+          (timeframe) =>
+            timeframe.id === id
+              ? {
+                  ...timeframe,
+                  isChecked:
+                    !timeframe.isChecked,
+                }
+              : timeframe
+        ),
+    }))
   }
 
   return (
@@ -49,31 +46,24 @@ export default function TimeframeSettings() {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {availableTimeframes.map(
-          (timeframe) => {
-            const isSelected =
-              selectedTimeframes.includes(
-                timeframe
-              )
-
-            return (
-              <button
-                key={timeframe}
-                onClick={() =>
-                  toggleTimeframe(
-                    timeframe
-                  )
-                }
-                className={`cursor-pointer rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 ${
-                  isSelected
-                    ? 'border border-blue-500/20 bg-blue-500/10 text-blue-400'
-                    : 'border border-gray-700 bg-[#1f2937] text-gray-400 hover:border-gray-600 hover:text-white'
-                }`}
-              >
-                {timeframe}
-              </button>
-            )
-          }
+        {settings.timeframes.map(
+          (timeframe) => (
+            <button
+              key={timeframe.id}
+              onClick={() =>
+                toggleTimeframe(
+                  timeframe.id
+                )
+              }
+              className={`cursor-pointer rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                timeframe.isChecked
+                  ? 'border border-blue-500/20 bg-blue-500/10 text-blue-400'
+                  : 'border border-gray-700 bg-[#1f2937] text-gray-400 hover:border-gray-600 hover:text-white'
+              }`}
+            >
+              {timeframe.label}
+            </button>
+          )
         )}
       </div>
     </div>
