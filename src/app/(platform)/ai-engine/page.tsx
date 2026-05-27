@@ -4,6 +4,7 @@ import TimeframeSettings from '@/src/components/ai/timeframe-settings/timeframe-
 import MarketFilters from '@/src/components/ai/market-filters/market-filters'
 import AIPerformance from '@/src/components/ai/ai-performance/ai-performance'
 import SignalPreview from '@/src/components/ai/signal-preview/signal-preview'
+import SignalHistory from '@/src/components/ai/signal-history/signal-history'
 
 export default function AIEnginePage() {
   return (
@@ -29,6 +30,11 @@ export default function AIEnginePage() {
 
           <SignalPreview />
         </div>
+
+        <div className="col-span-12 space-y-5">
+          <SignalHistory  />
+        </div>
+        
       </div>
     </div>
   )
