@@ -1,6 +1,6 @@
 export interface TradingSettings {
-  risk: number
-  leverage: number
+  risk: string
+  leverage: string
   preferedPair: string
   autoRisk: boolean
 }

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { Settings } from '../types/settings/settings'
+import { TradingSettings } from '../types/settings/trading-settings'
 
 interface SettingsStore {
   settings: Settings
@@ -15,6 +16,10 @@ interface SettingsStore {
   ) => void
 
   markAsSaved: () => void
+
+  updateTradingSettings: (
+    tradingSettings: Partial<TradingSettings>
+  ) => void
 }
 
 export const useSettingsStore =
@@ -22,16 +27,16 @@ export const useSettingsStore =
     (set) => ({
       settings: {
         profile: {
-          name: 'John Doe',
+          name: 'John Doe store',
           email: 'test@gmail.com',
           timeZone: 'UTC-5',
           userName: 'johntrader',
         },
         tradingSettings: {
             autoRisk: true,
-            leverage: 15,
+            leverage: '15',
             preferedPair: 'BTC/USD',
-            risk: 2,
+            risk: '2',
         },
         notifications: {
             email: true,
@@ -70,5 +75,19 @@ export const useSettingsStore =
         set({
           hasUnsavedChanges: false,
         }),
-    })
+      updateTradingSettings: (
+        tradingSettings
+      ) =>
+        set((state) => ({
+          settings: {
+            ...state.settings,
+            tradingSettings: {
+              ...state.settings.tradingSettings,
+              ...tradingSettings,
+            },
+          },
+          hasUnsavedChanges: true,
+        }))
+    }),
+    
   )
