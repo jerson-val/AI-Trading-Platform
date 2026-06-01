@@ -126,15 +126,15 @@ export default function LoginPage() {
     <>
     {loading && <FullscreenLoader />}
 
-      <div className="flex h-screen items-center justify-center bg-cover bg-center bg-no-repeat"
+      <div className="relative flex min-h-screen items-center justify-center bg-cover bg-center bg-no-repeat p-5"
         style={{
           backgroundImage:
             "url('/images/auth-bg.png')",
         }}>
 
         <div className="absolute inset-0 bg-black/70 backdrop-blur-[4px]" />
-
-        <div className=" relative z-10 w-full max-w-md rounded-2xl border border-gray-800 bg-[#111827] p-8 shadow-[0_0_40px_rgba(37,99,235,0.25)]">
+        
+          <div className=" relative z-10 w-full max-w-md rounded-2xl border border-gray-800 bg-[#111827] p-8 shadow-[0_0_40px_rgba(37,99,235,0.25)]">
           <h1 className="mb-8 text-center text-4xl font-extrabold tracking-wide text-blue-400">
             SMC AI
           </h1>
@@ -230,6 +230,7 @@ export default function LoginPage() {
 
           </form>
         </div>
+
       </div>
     </>
   )
