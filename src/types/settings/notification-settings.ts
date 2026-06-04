@@ -1,7 +1,12 @@
 export interface NotificationSettings {
-  email: boolean
-  tradeExecutions: boolean
-  aiWarnings: boolean
-  signalAlerts: boolean
-  telegramAlerts: boolean
+  email: Notification
+  tradeExecutions: Notification
+  aiWarnings: Notification
+  signalAlerts: Notification
+  telegramAlerts: Notification
+}
+
+interface Notification {
+  label: string
+  value: boolean
 }

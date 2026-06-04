@@ -20,6 +20,10 @@ interface SettingsStore {
   updateTradingSettings: (
     tradingSettings: Partial<TradingSettings>
   ) => void
+
+  toggleNotification: (
+    key: keyof Settings['notifications']
+  ) => void
 }
 
 export const useSettingsStore =
@@ -39,11 +43,26 @@ export const useSettingsStore =
             risk: '2',
         },
         notifications: {
-            email: true,
-            aiWarnings: true,
-            signalAlerts: false,
-            telegramAlerts: false,
-            tradeExecutions: true,
+            email: {
+              label: 'Email Notifications',
+              value: true,
+            },
+            aiWarnings: {
+              label: 'AI Warnings',
+              value: true,
+            },
+            signalAlerts: {
+              label: 'Signal Alerts',
+              value: false,
+            },
+            telegramAlerts: {
+              label: 'Telegram Alerts',
+              value: false,
+            },
+            tradeExecutions: {
+              label: 'Trade Executions',
+              value: true,
+            },
         },
         appearance: {
             chartTheme: 'dark',
@@ -87,7 +106,23 @@ export const useSettingsStore =
             },
           },
           hasUnsavedChanges: true,
-        }))
+        })),
+
+        toggleNotification: (key) =>
+          set((state) => ({
+            settings: {
+              ...state.settings,
+              notifications: {
+                ...state.settings.notifications,
+                [key]: {
+                  ...state.settings.notifications[key],
+                  value:
+                    !state.settings.notifications[key]
+                      .value,
+                },
+              },
+            },
+            hasUnsavedChanges: true,
+          })),
     }),
-    
   )
