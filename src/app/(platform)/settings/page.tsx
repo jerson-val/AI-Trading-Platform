@@ -19,19 +19,18 @@ export default function SettingsPage() {
 
           <TradingSettings />
 
-          <NotificationsSettings />
-
           <PaymentSettings />
         </div>
 
         {/* RIGHT */}
         <div className="col-span-12 space-y-5 xl:col-span-4">
-          <AppearanceSettings />
+          {/* <AppearanceSettings /> */}
+          <ConnectedAccounts />
 
+          <NotificationsSettings />
 
           <SecuritySettings />
 
-          <ConnectedAccounts />
         </div>
       </div>
     </div>

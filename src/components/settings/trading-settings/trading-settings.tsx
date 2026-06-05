@@ -1,5 +1,6 @@
 'use client'
 
+import { LEVERAGE_OPTIONS } from "@/src/config/trading-settings/leverage.config"
 import { useSettingsStore } from "@/src/store/settings.store"
 import { preventInvalidNumberKeys, restoreZeroIfEmpty } from "@/src/utils/numbers/number-input.utils"
 import { useState } from "react"
@@ -132,32 +133,26 @@ export default function TradingSettings() {
             Default Leverage
           </label>
 
-          <input
-            type="number"
-            step="0.01"
-            value={
-              settings.tradingSettings.leverage
-            }
+          <select
+            value={settings.tradingSettings.leverage}
             onChange={(e) =>
               updateTradingSettings({
-                leverage: e.target.value
+                leverage: e.target.value,
               })
             }
-            onBlur={() =>
-              restoreZeroIfEmpty(
-                settings.tradingSettings
-                  .leverage,
-                (value) =>
-                  updateTradingSettings({
-                    leverage: value,
-                  })
-              )
-            }
-            onKeyDown={
-              preventInvalidNumberKeys
-            }
             className="w-full rounded-lg border border-gray-700 bg-[#1f2937] px-3 py-2 text-sm outline-none"
-          />
+          >
+            {LEVERAGE_OPTIONS.map(
+            (value) => (
+              <option
+                key={value}
+                value={value}
+              >
+                {`1:${value}`}
+              </option>
+            )
+          )}
+        </select>
         </div>
 
         <div>

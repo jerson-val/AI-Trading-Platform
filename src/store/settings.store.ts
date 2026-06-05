@@ -38,7 +38,7 @@ export const useSettingsStore =
         },
         tradingSettings: {
             autoRisk: true,
-            leverage: '15',
+            leverage: '20',
             preferedPair: 'BTC/USD',
             risk: '2',
         },
