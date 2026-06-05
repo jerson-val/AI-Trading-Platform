@@ -3,8 +3,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
-
 import FullscreenLoader from '@/src/components/ui/fullscreen-loader'
+import { Eye, EyeOff } from 'lucide-react'
+import { validateConfirmPassword, validateEmail, validateFullName, validatePassword } from '@/src/utils/validators/input.validators'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -33,103 +34,46 @@ export default function RegisterPage() {
     confirmPassword: '',
     })
 
+  const [showPassword, setShowPassword] =
+    useState(false)
 
-const validateForm = () => {
+  const [
+    showConfirmPassword,
+    setShowConfirmPassword,
+  ] = useState(false)
+
+
+  const validateForm = () => {
     const newErrors = {
-        fullName: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-    }
+      fullName:
+        validateFullName(fullName),
 
-    let isValid = true
+      email:
+        validateEmail(email),
 
-    // FULL NAME
-    if (!fullName.trim()) {
-        newErrors.fullName =
-        'Full name is required'
+      password:
+        validatePassword(password),
 
-        isValid = false
-    }
-
-    // EMAIL
-    if (!email.trim()) {
-        newErrors.email =
-        'Email is required'
-
-        isValid = false
-    } else if (
-        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-        email
-        )
-    ) {
-        newErrors.email =
-        'Invalid email format'
-
-        isValid = false
-    }
-
-    // PASSWORD
-    if (!password.trim()) {
-        newErrors.password =
-        'Password is required'
-
-        isValid = false
-    } else if (password.length < 6) {
-        newErrors.password =
-        'Password must be at least 6 characters'
-
-        isValid = false
-    }
-
-    // CONFIRM PASSWORD
-    if (!confirmPassword.trim()) {
-        newErrors.confirmPassword =
-        'Please confirm your password'
-
-        isValid = false
-    } else if (
-        password !== confirmPassword
-    ) {
-        newErrors.confirmPassword =
-        'Passwords do not match'
-
-        isValid = false
+      confirmPassword:
+        validateConfirmPassword(
+          password,
+          confirmPassword
+        ),
     }
 
     setErrors(newErrors)
 
-    return isValid
-    }
+    return !Object.values(
+      newErrors
+    ).some(Boolean)
+  }
 
   const handleRegister = async () => {
-
-    if (!validateForm()) return
+    if (!validateForm()) {
+      return
+    }
 
     try {
-      if (
-        !fullName ||
-        !email ||
-        !password ||
-        !confirmPassword
-      ) {
-        toast.error(
-          'Please complete all fields'
-        )
-
-        return
-      }
-
-      if (
-        password !== confirmPassword
-      ) {
-        toast.error(
-          'Passwords do not match'
-        )
-
-        return
-      }
-
       setLoading(true)
 
       // MOCK API DELAY
@@ -188,16 +132,26 @@ const validateForm = () => {
                 <input
                   type="text"
                   value={fullName}
-                  onChange={(e) =>
-                    setFullName(
-                      e.target.value
-                    )
+                  onChange={(e) => {
+                    setFullName(e.target.value)
+
+                    setErrors((prev) => ({
+                      ...prev,
+                      fullName: '',
+                    }))
+                  }}
+                  onBlur={() =>
+                    setErrors((prev) => ({
+                      ...prev,
+                      fullName:
+                        validateFullName(fullName),
+                    }))
                   }
                   className={`w-full rounded-xl border bg-[#1f2937] px-4 py-3 outline-none transition ${
-                      errors.fullName
-                          ? 'border-red-500'
-                          : 'border-gray-700 focus:border-blue-500'
-                      }`}
+                    errors.fullName
+                      ? 'border-red-500'
+                      : 'border-gray-700 focus:border-blue-500'
+                  }`}
                   placeholder="Enter your full name"
                 />
                 {errors.fullName && (
@@ -215,16 +169,25 @@ const validateForm = () => {
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) =>
-                    setEmail(
-                      e.target.value
-                    )
+                  onChange={(e) => {
+                    setEmail(e.target.value)
+
+                    setErrors((prev) => ({
+                      ...prev,
+                      email: '',
+                    }))
+                  }}
+                  onBlur={() =>
+                    setErrors((prev) => ({
+                      ...prev,
+                      email: validateEmail(email),
+                    }))
                   }
                   className={`w-full rounded-xl border bg-[#1f2937] px-4 py-3 outline-none transition ${
-                      errors.email
-                          ? 'border-red-500'
-                          : 'border-gray-700 focus:border-blue-500'
-                      }`}
+                    errors.email
+                      ? 'border-red-500'
+                      : 'border-gray-700 focus:border-blue-500'
+                  }`}
                   placeholder="Enter your email"
                 />
                 {errors.email && (
@@ -239,21 +202,37 @@ const validateForm = () => {
                   Password
                 </label>
 
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) =>
-                    setPassword(
-                      e.target.value
-                    )
-                  }
-                  className={`w-full rounded-xl border bg-[#1f2937] px-4 py-3 outline-none transition ${
-                      errors.password
-                          ? 'border-red-500'
-                          : 'border-gray-700 focus:border-blue-500'
-                      }`}
-                  placeholder="Create a password"
-                />
+                <div className="relative">
+                  <input
+                    type={
+                      showPassword
+                        ? 'text'
+                        : 'password'
+                    }
+                    value={password}
+                    onChange={(e) =>
+                      setPassword(e.target.value)
+                    }
+                    className="w-full rounded-xl border border-gray-700 bg-[#1f2937] px-4 py-3 pr-12 outline-none transition focus:border-blue-500"
+                    placeholder="Create a password"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowPassword(
+                        !showPassword
+                      )
+                    }
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                  >
+                    {showPassword ? (
+                      <EyeOff size={18} />
+                    ) : (
+                      <Eye size={18} />
+                    )}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className="mt-2 text-sm text-red-400">
                       {errors.password}
@@ -266,21 +245,37 @@ const validateForm = () => {
                   Confirm Password
                 </label>
 
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) =>
-                    setConfirmPassword(
-                      e.target.value
-                    )
-                  }
-                  className={`w-full rounded-xl border bg-[#1f2937] px-4 py-3 outline-none transition ${
-                      errors.confirmPassword
-                          ? 'border-red-500'
-                          : 'border-gray-700 focus:border-blue-500'
-                      }`}
-                  placeholder="Confirm your password"
-                />
+                <div className="relative">
+                  <input
+                    type={
+                      showConfirmPassword
+                        ? 'text'
+                        : 'password'
+                    }
+                    value={confirmPassword}
+                    onChange={(e) =>
+                      setConfirmPassword(e.target.value)
+                    }
+                    className="w-full rounded-xl border border-gray-700 bg-[#1f2937] px-4 py-3 pr-12 outline-none transition focus:border-blue-500"
+                    placeholder="Confirm your password"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowConfirmPassword(
+                        !showConfirmPassword
+                      )
+                    }
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff size={18} />
+                    ) : (
+                      <Eye size={18} />
+                    )}
+                  </button>
+                </div>
                 {errors.confirmPassword && (
                   <p className="mt-2 text-sm text-red-400">
                       {errors.confirmPassword}

@@ -41,6 +41,17 @@ export default function Navbar() {
     async () => {
       if (!strategy) return
 
+      if (
+        strategy.validate &&
+        !strategy.validate()
+      ) {
+        toast.error(
+          'Please fix validation errors'
+        )
+
+        return
+      }
+
       try {
         setIsSaving(true)
 
@@ -88,7 +99,7 @@ export default function Navbar() {
             }`}
           >
             {hasUnsavedChanges
-              ? 'Save Settings'
+              ? 'Save Settings' 
               : 'Saved'}
           </button>
         )}

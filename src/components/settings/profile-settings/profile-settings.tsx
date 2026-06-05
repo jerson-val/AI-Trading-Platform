@@ -1,6 +1,8 @@
 'use client'
 
 import { useSettingsStore } from "@/src/store/settings.store"
+import { validateEmail, validateFullName } from "@/src/utils/validators/input.validators"
+import { useState } from "react"
 
 export default function ProfileSettings() {
 
@@ -13,6 +15,11 @@ export default function ProfileSettings() {
     useSettingsStore(
       (state) => state.setSettings
     )
+
+  const [errors, setErrors] = useState({
+    name: '',
+    email: '',
+  })
 
   const handleProfileChange = (
     field: keyof typeof settings.profile,
@@ -48,32 +55,37 @@ export default function ProfileSettings() {
           <input
             type="text"
             value={settings.profile.name}
-            onChange={(e) =>
+            onChange={(e) => {
               handleProfileChange(
                 'name',
                 e.target.value
               )
-            }
-            className="w-full rounded-lg border border-gray-700 bg-[#1f2937] px-3 py-2 text-sm outline-none transition focus:border-blue-500"
-          />
-        </div>
 
-        <div>
-          <label className="mb-2 block text-xs text-gray-400">
-            Username
-          </label>
-
-          <input
-            type="text"
-            value={settings.profile.userName}
-            onChange={(e) =>
-              handleProfileChange(
-                'userName',
-                e.target.value
-              )
+              setErrors((prev) => ({
+                ...prev,
+                name: '',
+              }))
+            }}
+            onBlur={() =>
+              setErrors((prev) => ({
+                ...prev,
+                name: validateFullName(
+                  settings.profile.name
+                ),
+              }))
             }
-            className="w-full rounded-lg border border-gray-700 bg-[#1f2937] px-3 py-2 text-sm outline-none transition focus:border-blue-500"
+            className={`w-full rounded-lg border bg-[#1f2937] px-3 py-2 text-sm outline-none transition ${
+              errors.name
+                ? 'border-red-500'
+                : 'border-gray-700 focus:border-blue-500'
+            }`}
           />
+
+          {errors.name && (
+            <p className="mt-1 text-xs text-red-400">
+              {errors.name}
+            </p>
+          )}
         </div>
 
         <div>
@@ -84,14 +96,37 @@ export default function ProfileSettings() {
           <input
             type="email"
             value={settings.profile.email}
-            onChange={(e) =>
+            onChange={(e) => {
               handleProfileChange(
                 'email',
                 e.target.value
               )
+
+              setErrors((prev) => ({
+                ...prev,
+                email: '',
+              }))
+            }}
+            onBlur={() =>
+              setErrors((prev) => ({
+                ...prev,
+                email: validateEmail(
+                  settings.profile.email
+                ),
+              }))
             }
-            className="w-full rounded-lg border border-gray-700 bg-[#1f2937] px-3 py-2 text-sm outline-none transition focus:border-blue-500"
+            className={`w-full rounded-lg border bg-[#1f2937] px-3 py-2 text-sm outline-none transition ${
+              errors.email
+                ? 'border-red-500'
+                : 'border-gray-700 focus:border-blue-500'
+            }`}
           />
+
+          {errors.email && (
+            <p className="mt-1 text-xs text-red-400">
+              {errors.email}
+            </p>
+          )}
         </div>
 
         <div>

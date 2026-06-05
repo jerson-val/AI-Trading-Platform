@@ -33,8 +33,7 @@ export const useSettingsStore =
         profile: {
           name: 'John Doe store',
           email: 'test@gmail.com',
-          timeZone: 'UTC-5',
-          userName: 'johntrader',
+          timeZone: 'UTC-5'
         },
         tradingSettings: {
             autoRisk: true,

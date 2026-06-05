@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { useAuthStore } from '@/src/store/auth.store'
 import FullscreenLoader from '@/src/components/ui/fullscreen-loader'
+import { Eye, EyeOff } from 'lucide-react'
+import { validateEmail, validatePassword } from '@/src/utils/validators/input.validators'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -27,57 +29,31 @@ export default function LoginPage() {
     password: '',
   })
 
+  const [showPassword, setShowPassword] =
+    useState(false)
+
   const validateForm = () => {
     const newErrors = {
-      email: '',
-      password: '',
-    }
-
-    let isValid = true
-
-    // EMAIL
-    if (!email.trim()) {
-      newErrors.email =
-        'Email is required'
-
-      isValid = false
-    } else if (
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-        email
-      )
-    ) {
-      newErrors.email =
-        'Invalid email format'
-
-      isValid = false
-    }
-
-    // PASSWORD
-    if (!password.trim()) {
-      newErrors.password =
-        'Password is required'
-
-      isValid = false
-    } else if (password.length < 3) {
-      newErrors.password =
-        'Password must be at least 3 characters'
-
-      isValid = false
+      email: validateEmail(email),
+      password: validatePassword(password),
     }
 
     setErrors(newErrors)
 
-    return isValid
+    return !Object.values(
+      newErrors
+    ).some(Boolean)
   }
 
   const handleLogin = async () => {
-
-    if (!validateForm()) return
+    if (!validateForm()) {
+      return
+    }
 
     try {
       setLoading(true)
 
-      // MOCK API DELAY
+       // MOCK API DELAY
       await new Promise((resolve) =>
         setTimeout(resolve, 1000)
       )
@@ -91,7 +67,7 @@ export default function LoginPage() {
 
       if (
         email === '1@1.com' &&
-        password === '123'
+        password === '123456'
       ) {
         login(
           {
@@ -111,15 +87,15 @@ export default function LoginPage() {
           'Invalid credentials'
         )
       }
-      setLoading(false)
     } catch (error) {
       console.error(error)
 
       toast.error(
         'Something went wrong'
       )
+    } finally {
       setLoading(false)
-    } 
+    }
   }
 
   return (
@@ -161,6 +137,12 @@ export default function LoginPage() {
                     email: '',
                   }))
                 }}
+                onBlur={() =>
+                  setErrors((prev) => ({
+                    ...prev,
+                    email: validateEmail(email),
+                  }))
+                }
                 className={`w-full rounded-xl border bg-[#1f2937] px-4 py-3 outline-none transition ${
                   errors.email
                     ? 'border-red-500'
@@ -181,8 +163,13 @@ export default function LoginPage() {
                 Password
               </label>
 
-              <input
-                type="password"
+              <div className="relative">
+                <input
+                  type={
+                  showPassword
+                    ? 'text'
+                    : 'password'
+                }
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value)
@@ -192,13 +179,37 @@ export default function LoginPage() {
                     password: '',
                   }))
                 }}
+                onBlur={() =>
+                  setErrors((prev) => ({
+                    ...prev,
+                    password:
+                      validatePassword(password),
+                  }))
+                }
                 className={`w-full rounded-xl border bg-[#1f2937] px-4 py-3 outline-none transition ${
                   errors.password
                     ? 'border-red-500'
                     : 'border-gray-700 focus:border-blue-500'
                 }`}
                 placeholder="Enter your password"
-              />
+                />
+
+                <button
+                    type="button"
+                    onClick={() =>
+                      setShowPassword(
+                        !showPassword
+                      )
+                    }
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                  >
+                    {showPassword ? (
+                      <EyeOff size={18} />
+                    ) : (
+                      <Eye size={18} />
+                    )}
+                  </button>
+              </div>
 
               {errors.password && (
                 <p className="mt-2 text-sm text-red-400">

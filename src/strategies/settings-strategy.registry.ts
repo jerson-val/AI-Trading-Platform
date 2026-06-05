@@ -4,6 +4,7 @@ import { appSettingsStrategy } from './settings/app-settings.strategy'
 export interface SettingsStrategy {
   markAsSaved: () => void
   save: () => Promise<void>
+  validate?: () => boolean
 }
 
 export const settingsStrategyRegistry: Record<
