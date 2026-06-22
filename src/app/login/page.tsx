@@ -73,9 +73,7 @@ export default function LoginPage() {
         toast.error('Something went wrong')
       }
 
-    } finally {
-      setLoading(false)
-    }
+    } 
   }
 
   return (

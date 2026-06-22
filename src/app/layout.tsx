@@ -1,4 +1,3 @@
-import AuthProvider from '../providers/auth-provider'
 import './globals.css'
 import type { Metadata } from 'next'
 import { Toaster } from 'react-hot-toast'
@@ -21,7 +20,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthProvider>
           {children}
 
           <Toaster
@@ -34,7 +32,6 @@ export default function RootLayout({
               },
             }}
           />
-        </AuthProvider>
       </body>
     </html>
   )

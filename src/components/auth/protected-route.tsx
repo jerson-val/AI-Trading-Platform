@@ -13,7 +13,7 @@ export default function ProtectedRoute({
 
   const isAuthenticated =
     useAuthStore(
-      (state) => state.isAuthenticated
+      (state) => state.accessToken
     )
 
   useEffect(() => {
