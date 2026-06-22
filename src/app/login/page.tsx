@@ -7,6 +7,7 @@ import { useAuthStore } from '@/src/store/auth.store'
 import FullscreenLoader from '@/src/components/ui/fullscreen-loader'
 import { Eye, EyeOff } from 'lucide-react'
 import { validateEmail, validatePassword } from '@/src/utils/validators/input.validators'
+import { login as loginCall } from '@/src/services/auth/auth.service'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -53,46 +54,25 @@ export default function LoginPage() {
     try {
       setLoading(true)
 
-       // MOCK API DELAY
-      await new Promise((resolve) =>
-        setTimeout(resolve, 1000)
-      )
+      const data = await loginCall(
+        email,
+        password
+      );
 
-      // to do after login:
-      /*
-        JWT token
-        refresh token
-        user info
-      */ 
+      login(data);
 
-      if (
-        email === '1@1.com' &&
-        password === '123456'
-      ) {
-        login(
-          {
-            id: '1',
-            email,
-          },
-          'mock-jwt-token'
-        )
+      toast.success('Login successful');
 
-        toast.success(
-          'Login successful'
-        )
+      router.replace('/dashboard');
 
-        router.replace('/dashboard')
+    } catch (error: any) {
+
+      if (error.response?.status === 401) {
+        toast.error('Invalid credentials')
       } else {
-        toast.error(
-          'Invalid credentials'
-        )
+        toast.error('Something went wrong')
       }
-    } catch (error) {
-      console.error(error)
 
-      toast.error(
-        'Something went wrong'
-      )
     } finally {
       setLoading(false)
     }

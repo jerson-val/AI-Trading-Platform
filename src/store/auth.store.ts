@@ -1,56 +1,57 @@
 import { create } from 'zustand'
+import { LoginResponse } from '../types/auth/login-response'
 
-interface User {
+/*interface User {
   id: string
   email: string
-}
+  fullName: string
+}*/
 
 interface AuthState {
-  user: User | null
-  token: string | null
-  isAuthenticated: boolean
+  name: string | null
 
-  login: (
-    user: User,
-    token: string
+  accessToken: string | null
+
+  accessTokenExpiresAt: Date | null
+
+  login: (loginResponse: LoginResponse) => void
+
+  setAccessToken: (
+    token: string,
+    accessTokenExpiresAt: Date
   ) => void
 
   logout: () => void
 }
 
-export const useAuthStore = create<AuthState>(
-  (set) => ({
-    user: null,
-    token: null,
-    isAuthenticated: false,
+export const useAuthStore =
+  create<AuthState>((set) => ({
+    name: null,
 
-    login: (user, token) => {
-      localStorage.setItem(
-        'token',
-        token
-      )
+    accessToken: null,
 
-      localStorage.setItem(
-        'user',
-        JSON.stringify(user)
-      )
+    accessTokenExpiresAt: null,
 
+    login: ({ name, accessToken, accessTokenExpiresAt }: LoginResponse) =>
       set({
-        user,
-        token,
-        isAuthenticated: true,
-      })
-    },
+        name,
+        accessToken,
+        accessTokenExpiresAt,
+      }),
 
-    logout: () => {
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-
+    setAccessToken: (
+      token,
+      accessTokenExpiresAt
+    ) =>
       set({
-        user: null,
-        token: null,
-        isAuthenticated: false,
-      })
-    },
-  })
-)
+        accessToken: token,
+        accessTokenExpiresAt,
+      }),
+
+    logout: () =>
+      set({
+        name: null,
+        accessToken: null,
+        accessTokenExpiresAt: null,
+      }),
+  }))
