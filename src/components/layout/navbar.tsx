@@ -7,9 +7,10 @@ import { toast } from 'react-hot-toast'
 import FullscreenLoader from '../ui/fullscreen-loader'
 import { settingsStrategyRegistry } from '@/src/strategies/settings-strategy.registry'
 import { useUnsavedChanges } from '@/src/hooks/use-unsaved-changes'
+import { logout as logoutCall } from '@/src/services/auth/auth.service'
 
 export default function Navbar() {
-  const [isSaving, setIsSaving] =
+  const [isLoading, setIsLoading] =
     useState(false)
 
   const pathname = usePathname()
@@ -31,10 +32,30 @@ export default function Navbar() {
   const hasUnsavedChanges =
     useUnsavedChanges()
 
-  const handleLogout = () => {
-    logout()
+  const handleLogout = async () => {
+    try { 
 
-    router.push('/login')
+      setIsLoading(true);
+
+      await logoutCall();
+
+      logout();
+
+      router.push('/login');
+
+      toast.success(
+        'Successfully logged out'
+      )
+
+    }catch (error) {
+      
+      setIsLoading(false);
+
+      toast.error(
+        'Failed to logout'
+      )
+    }
+    
   }
 
   const handleSave =
@@ -53,7 +74,7 @@ export default function Navbar() {
       }
 
       try {
-        setIsSaving(true)
+        setIsLoading(true)
 
         await strategy.save()
 
@@ -69,11 +90,11 @@ export default function Navbar() {
           'Failed to save settings'
         )
       } finally {
-        setIsSaving(false)
+        setIsLoading(false)
       }
     }
 
-  if (isSaving) {
+  if (isLoading) {
     return <FullscreenLoader />
   }
 
