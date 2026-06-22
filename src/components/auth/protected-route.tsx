@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/src/store/auth.store'
+import { useSessionStore } from '@/src/store/session.store'
 
 export default function ProtectedRoute({
   children,
@@ -16,8 +17,10 @@ export default function ProtectedRoute({
       (state) => state.accessToken
     )
 
+  const isModalExpireOpen = useSessionStore.getState().isExpiredModalOpen
+
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated && !isModalExpireOpen) {
       router.push('/login')
     }
   }, [isAuthenticated, router])

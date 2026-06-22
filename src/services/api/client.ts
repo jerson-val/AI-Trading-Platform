@@ -1,6 +1,7 @@
 import { useAuthStore } from '@/src/store/auth.store'
 import axios from 'axios'
 import { refreshToken } from '../auth/auth.service'
+import { useSessionStore } from '@/src/store/session.store'
 
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -50,9 +51,10 @@ api.interceptors.response.use(
 
         return api(originalRequest)
       } catch {
+        
         useAuthStore.getState().logout()
 
-        window.location.href = '/login'
+        useSessionStore.getState().openExpiredModal()
 
         return Promise.reject(error)
       }

@@ -66,6 +66,7 @@ export default function LoginPage() {
       router.replace('/dashboard');
 
     } catch (error: any) {
+      setLoading(false)
 
       if (error.response?.status === 401) {
         toast.error('Invalid credentials')

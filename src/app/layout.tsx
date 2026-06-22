@@ -2,6 +2,8 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Toaster } from 'react-hot-toast'
 import { Inter } from 'next/font/google'
+import TokenRefreshProvider from '../providers/auth/token-refresh-provider'
+import SessionExpiredModal from '../components/auth/session-expire-modal'
 
 export const metadata: Metadata = {
   title: 'Smart Money AI Trading Platform',
@@ -19,7 +21,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+
       <body className={inter.className}>
+        
+        <TokenRefreshProvider />
+
           {children}
 
           <Toaster
@@ -32,6 +38,8 @@ export default function RootLayout({
               },
             }}
           />
+
+          <SessionExpiredModal />
       </body>
     </html>
   )
