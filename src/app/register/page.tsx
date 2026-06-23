@@ -6,9 +6,15 @@ import toast from 'react-hot-toast'
 import FullscreenLoader from '@/src/components/ui/fullscreen-loader'
 import { Eye, EyeOff } from 'lucide-react'
 import { validateConfirmPassword, validateEmail, validateFullName, validatePassword } from '@/src/utils/validators/input.validators'
+import { register } from '@/src/services/auth/auth.service'
+import { useAuthStore } from '@/src/store/auth.store'
 
 export default function RegisterPage() {
   const router = useRouter()
+
+  const login = useAuthStore(
+      (state) => state.login
+    )
 
   const [loading, setLoading] =
     useState(false)
@@ -69,31 +75,38 @@ export default function RegisterPage() {
   }
 
   const handleRegister = async () => {
+    
     if (!validateForm()) {
       return
     }
 
     try {
+
       setLoading(true)
 
-      // MOCK API DELAY
-      await new Promise((resolve) =>
-        setTimeout(resolve, 1500)
-      )
+      const response = await register(
+        fullName,
+        email,
+        password
+      );
+
+      login(response);
 
       toast.success(
         'Account created successfully'
       )
 
-      router.replace('/login')
-    } catch (error) {
-      console.error(error)
+      router.replace('/dashboard')
 
-      toast.error(
-        'Something went wrong'
-      )
-    } finally {
+    } catch (error: any) {
       setLoading(false)
+
+      if (error.response?.status === 400) {
+        toast.error('This email is already registered')
+      } else {
+        toast.error('Something went wrong')
+      }
+
     }
   }
 
