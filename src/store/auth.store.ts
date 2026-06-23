@@ -14,6 +14,8 @@ interface AuthState {
 
   accessTokenExpiresAt: Date | null
 
+  isAuthLoading: boolean
+
   login: (loginResponse: LoginResponse) => void
 
   setAccessToken: (
@@ -22,6 +24,10 @@ interface AuthState {
   ) => void
 
   logout: () => void
+
+  setAuthLoading: (
+    value: boolean
+  ) => void
 }
 
 export const useAuthStore =
@@ -32,11 +38,13 @@ export const useAuthStore =
 
     accessTokenExpiresAt: null,
 
+    isAuthLoading: true,
+
     login: ({ name, accessToken, accessTokenExpiresAt }: LoginResponse) =>
       set({
         name,
         accessToken,
-        accessTokenExpiresAt,
+        accessTokenExpiresAt
       }),
 
     setAccessToken: (
@@ -53,5 +61,12 @@ export const useAuthStore =
         name: null,
         accessToken: null,
         accessTokenExpiresAt: null,
+      }),
+
+    setAuthLoading: (
+      value
+    ) =>
+      set({
+        isAuthLoading: value,
       }),
   }))
