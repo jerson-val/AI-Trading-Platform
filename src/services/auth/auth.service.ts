@@ -14,8 +14,10 @@ export const login = async (email: string, password: string) => {
 export const register = async (
     fullName: string,
     email: string, 
-    password: string) => {
-  const response = await api.post<LoginResponse>('/auth/register', { fullName, email, password })
+    password: string,
+    timeZone: string
+) => {
+  const response = await api.post<LoginResponse>('/auth/register', { fullName, email, password, timeZone })
   return response.data
 };
 

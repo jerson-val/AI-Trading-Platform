@@ -85,11 +85,14 @@ export default function RegisterPage() {
 
       setLoading(true)
 
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
       const response = await register(
         fullName,
         email,
-        password
-      );
+        password,
+        timeZone
+      );  
 
       login(response);
 
