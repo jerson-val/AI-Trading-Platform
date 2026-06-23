@@ -75,7 +75,7 @@ export default function RegisterPage() {
   }
 
   const handleRegister = async () => {
-    
+
     if (!validateForm()) {
       return
     }
@@ -223,8 +223,20 @@ export default function RegisterPage() {
                         : 'password'
                     }
                     value={password}
-                    onChange={(e) =>
+                    onChange={(e) =>{
                       setPassword(e.target.value)
+
+                      setErrors((prev) => ({
+                        ...prev,
+                        password: '',
+                      }))
+                    }} 
+                    onBlur={() =>
+                      setErrors((prev) => ({
+                        ...prev,
+                        password:
+                          validatePassword(password),
+                      }))
                     }
                     className="w-full rounded-xl border border-gray-700 bg-[#1f2937] px-4 py-3 pr-12 outline-none transition focus:border-blue-500"
                     placeholder="Create a password"
@@ -266,8 +278,20 @@ export default function RegisterPage() {
                         : 'password'
                     }
                     value={confirmPassword}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setConfirmPassword(e.target.value)
+
+                      setErrors((prev) => ({
+                        ...prev,
+                        confirmPassword: '',
+                      }))
+                    }}
+                    onBlur={() =>
+                      setErrors((prev) => ({
+                        ...prev,
+                        confirmPassword:
+                          validateConfirmPassword(password, confirmPassword),
+                      }))
                     }
                     className="w-full rounded-xl border border-gray-700 bg-[#1f2937] px-4 py-3 pr-12 outline-none transition focus:border-blue-500"
                     placeholder="Confirm your password"
