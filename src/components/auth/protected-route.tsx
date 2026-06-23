@@ -21,7 +21,7 @@ export default function ProtectedRoute({
 
   useEffect(() => {
     if (!isAuthenticated && !isModalExpireOpen) {
-      router.push('/login')
+      router.replace('/login')
     }
   }, [isAuthenticated, router])
 

@@ -5,37 +5,41 @@ import MarketFilters from '@/src/components/ai/market-filters/market-filters'
 import AIPerformance from '@/src/components/ai/ai-performance/ai-performance'
 import SignalPreview from '@/src/components/ai/signal-preview/signal-preview'
 import SignalHistory from '@/src/components/ai/signal-history/signal-history'
+import ProtectedRoute from '@/src/components/auth/protected-route'
 
 export default function AIEnginePage() {
   return (
-    <div className="space-y-5">
-      {/* TOP */}
-      <div className="grid grid-cols-12 gap-5">
-        {/* LEFT */}
-        <div className="col-span-12 space-y-5 xl:col-span-8">
-          <StrategySettings />
+    <ProtectedRoute>
+      <div className="space-y-5">
+        {/* TOP */}
+        <div className="grid grid-cols-12 gap-5">
+          {/* LEFT */}
+          <div className="col-span-12 space-y-5 xl:col-span-8">
+            <StrategySettings />
 
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-            <ConfidenceSettings />
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+              <ConfidenceSettings />
 
-            <TimeframeSettings />
+              <TimeframeSettings />
+            </div>
+
+            <MarketFilters />
           </div>
 
-          <MarketFilters />
-        </div>
+          {/* RIGHT */}
+          <div className="col-span-12 space-y-5 xl:col-span-4">
+            <AIPerformance />
 
-        {/* RIGHT */}
-        <div className="col-span-12 space-y-5 xl:col-span-4">
-          <AIPerformance />
+            <SignalPreview />
+          </div>
 
-          <SignalPreview />
+          <div className="col-span-12 space-y-5">
+            <SignalHistory  />
+          </div>
+          
         </div>
-
-        <div className="col-span-12 space-y-5">
-          <SignalHistory  />
-        </div>
-        
       </div>
-    </div>
+    </ProtectedRoute>
+    
   )
 }

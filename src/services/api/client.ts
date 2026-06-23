@@ -3,6 +3,15 @@ import axios from 'axios'
 import { refreshToken } from '../auth/auth.service'
 import { useSessionStore } from '@/src/store/session.store'
 
+const accessToken =
+  useAuthStore.getState().accessToken
+
+const publicRoutes = [
+  '/auth/login',
+  '/auth/register',
+  '/auth/refresh-token'
+]
+
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
 
@@ -31,11 +40,10 @@ api.interceptors.response.use(
     const originalRequest = error.config
 
     if (
+      accessToken &&
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url?.includes(
-        '/auth/refresh-token'
-      )
+      !publicRoutes.some(route => originalRequest.url?.includes(route))
     ) {
       originalRequest._retry = true
 
@@ -51,8 +59,6 @@ api.interceptors.response.use(
 
         return api(originalRequest)
       } catch {
-        
-        useAuthStore.getState().logout()
 
         useSessionStore.getState().openExpiredModal()
 

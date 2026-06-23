@@ -7,34 +7,37 @@ import AISummary from '@/src/components/backtesting/ai-summary/ai-summary'
 import RiskAnalysis from '@/src/components/backtesting/risk-analysis/risk-analysis'
 import TradeTimeline from '@/src/components/backtesting/trade-timeline/trade-timeline'
 import TradesHistory from '@/src/components/backtesting/trades-history/trades-history'
+import ProtectedRoute from '@/src/components/auth/protected-route'
 
 export default function BacktestingPage() {
   return (
-    <div className="space-y-5">
-      {/* TOP CONTROLS */}
-      <BacktestControls />
+    <ProtectedRoute>
+      <div className="space-y-5">
+        {/* TOP CONTROLS */}
+        <BacktestControls />
 
-      {/* MAIN GRID */}
-      <div className="grid grid-cols-12 gap-5">
-        {/* LEFT */}
-        <div className="col-span-12 space-y-5 xl:col-span-8">
-          <BacktestChart />
+        {/* MAIN GRID */}
+        <div className="grid grid-cols-12 gap-5">
+          {/* LEFT */}
+          <div className="col-span-12 space-y-5 xl:col-span-8">
+            <BacktestChart />
 
-          <TradeTimeline />
+            <TradeTimeline />
+          </div>
+
+          {/* RIGHT */}
+          <div className="col-span-12 space-y-5 xl:col-span-4">
+            <BacktestResults />
+
+            <AISummary />
+
+            <RiskAnalysis />
+          </div>
         </div>
 
-        {/* RIGHT */}
-        <div className="col-span-12 space-y-5 xl:col-span-4">
-          <BacktestResults />
-
-          <AISummary />
-
-          <RiskAnalysis />
-        </div>
+        {/* TABLE */}
+        <TradesHistory />
       </div>
-
-      {/* TABLE */}
-      <TradesHistory />
-    </div>
+    </ProtectedRoute>
   )
 }

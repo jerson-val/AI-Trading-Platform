@@ -2,13 +2,8 @@
 
 import { X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-
-import { useAuthStore }
-  from '@/src/store/auth.store'
-
-import { useSessionStore }
-  from '@/src/store/session.store'
-import { logout } from '@/src/services/auth/auth.service'
+import { useAuthStore } from '@/src/store/auth.store'
+import { useSessionStore } from '@/src/store/session.store'
 
 export default function
 SessionExpiredModal() {
@@ -32,21 +27,15 @@ SessionExpiredModal() {
     return null
   }
 
-  const handleRedirect =
-    async () => {
+  const handleRedirect = () => {
 
-        try {
+    useAuthStore.getState().logout()
 
-         await logout()
+    closeModal()
 
-        } catch {}
+    router.replace('/login')
 
-        useAuthStore.getState().logout()
-
-        closeModal()
-
-        router.replace('/login')
-    }
+  }
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70">
