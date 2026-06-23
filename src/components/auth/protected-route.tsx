@@ -3,7 +3,6 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/src/store/auth.store'
-import { useSessionStore } from '@/src/store/session.store'
 import { useLoaderStore } from '@/src/store/loader.store'
 
 export default function ProtectedRoute({
@@ -32,8 +31,6 @@ export default function ProtectedRoute({
     (state) => state.hide
   )
 
-  const isModalExpireOpen = useSessionStore.getState().isExpiredModalOpen
-
   useEffect(() => {
 
     if (isAuthLoading) {
@@ -43,10 +40,10 @@ export default function ProtectedRoute({
       hideLoader()
     }
  
-    if (!isAuthenticated && !isModalExpireOpen) {
+    if (!isAuthenticated ) {
       router.replace('/login')
     }
-  }, [isAuthenticated, router, isAuthLoading, isModalExpireOpen])
+  }, [isAuthenticated, router, isAuthLoading])
 
   if (!isAuthenticated) {
     return null

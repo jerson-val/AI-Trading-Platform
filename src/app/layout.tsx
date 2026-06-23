@@ -3,7 +3,6 @@ import type { Metadata } from 'next'
 import { Toaster } from 'react-hot-toast'
 import { Inter } from 'next/font/google'
 import TokenRefreshProvider from '../providers/auth/token-refresh-provider'
-import SessionExpiredModal from '../components/auth/session-expire-modal'
 import AuthBootstrap from '../components/auth/auth-bootstrap'
 import FullscreenLoader from '../components/ui/fullscreen-loader'
 
@@ -45,7 +44,6 @@ export default function RootLayout({
 
           <FullscreenLoader />
 
-          <SessionExpiredModal />
       </body>
     </html>
   )

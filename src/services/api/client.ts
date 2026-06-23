@@ -1,7 +1,7 @@
 import { useAuthStore } from '@/src/store/auth.store'
 import axios from 'axios'
 import { refreshToken } from '../auth/auth.service'
-import { useSessionStore } from '@/src/store/session.store'
+import toast from 'react-hot-toast'
 
 const accessToken =
   useAuthStore.getState().accessToken
@@ -60,7 +60,7 @@ api.interceptors.response.use(
         return api(originalRequest)
       } catch {
 
-        useSessionStore.getState().openExpiredModal()
+        toast.error('Your session has expired, Please sign in again to continue.')
 
         return Promise.reject(error)
       }

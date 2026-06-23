@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useAuthStore } from '@/src/store/auth.store'
 import { refreshToken    } from '@/src/services/auth/auth.service'
-import { useSessionStore } from '../store/session.store'
+import toast from 'react-hot-toast'
 
 export const useTokenRefresh = () => {
 
@@ -48,7 +48,7 @@ export const useTokenRefresh = () => {
 
             useAuthStore.getState().logout();
 
-            useSessionStore.getState().openExpiredModal()
+            toast.error("Your session has expired, Please sign in again to continue.");
           }
 
         },
