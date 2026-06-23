@@ -4,11 +4,11 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { useAuthStore } from '@/src/store/auth.store'
-import FullscreenLoader from '@/src/components/ui/fullscreen-loader'
 import { Eye, EyeOff } from 'lucide-react'
 import { validateEmail, validatePassword } from '@/src/utils/validators/input.validators'
 import { login as loginCall } from '@/src/services/auth/auth.service'
 import GuestRoute from '@/src/components/auth/guess-route'
+import { useLoaderStore } from '@/src/store/loader.store'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -17,14 +17,19 @@ export default function LoginPage() {
     (state) => state.login
   )
 
+  const showLoader = useLoaderStore(
+    (state) => state.show
+  )
+
+  const hideLoader = useLoaderStore(
+    (state) => state.hide
+  )
+
   const [email, setEmail] =
     useState('')
 
   const [password, setPassword] =
     useState('')
-
-  const [loading, setLoading] =
-    useState(false)
 
   const [errors, setErrors] = useState({
     email: '',
@@ -53,7 +58,7 @@ export default function LoginPage() {
     }
 
     try {
-      setLoading(true)
+      showLoader()
 
       const data = await loginCall(
         email,
@@ -62,12 +67,14 @@ export default function LoginPage() {
 
       login(data);
 
+      hideLoader();
+
       toast.success('Login successful');
 
       router.replace('/dashboard');
 
     } catch (error: any) {
-      setLoading(false)
+      hideLoader()
 
       if (error.response?.status === 401) {
         toast.error('Invalid credentials')
@@ -80,9 +87,6 @@ export default function LoginPage() {
 
   return (
     <GuestRoute>
-      <>
-      {loading && <FullscreenLoader />}
-
         <div className="relative flex min-h-screen items-center justify-center bg-cover bg-center bg-no-repeat p-5"
           style={{
             backgroundImage:
@@ -224,7 +228,6 @@ export default function LoginPage() {
           </div>
 
         </div>
-      </>
     </GuestRoute>
   )
 }

@@ -4,18 +4,24 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useAuthStore } from '@/src/store/auth.store'
 import { useState } from 'react'
 import { toast } from 'react-hot-toast'
-import FullscreenLoader from '../ui/fullscreen-loader'
 import { settingsStrategyRegistry } from '@/src/strategies/settings-strategy.registry'
 import { useUnsavedChanges } from '@/src/hooks/use-unsaved-changes'
 import { logout as logoutCall } from '@/src/services/auth/auth.service'
+import { useLoaderStore } from '@/src/store/loader.store'
 
 export default function Navbar() {
-  const [isLoading, setIsLoading] =
-    useState(false)
 
   const pathname = usePathname()
 
   const router = useRouter()
+
+  const showLoader = useLoaderStore(
+          (state) => state.show
+        )
+      
+  const hideLoader = useLoaderStore(
+    (state) => state.hide
+  )
 
   const logout = useAuthStore(
     (state) => state.logout
@@ -35,9 +41,11 @@ export default function Navbar() {
   const handleLogout = async () => {
     try { 
 
-      setIsLoading(true);
+      showLoader();
 
       await logoutCall();
+
+      hideLoader();
 
       logout();
 
@@ -49,7 +57,7 @@ export default function Navbar() {
 
     }catch (error) {
       
-      setIsLoading(false);
+      hideLoader();
 
       toast.error(
         'Failed to logout'
@@ -74,29 +82,28 @@ export default function Navbar() {
       }
 
       try {
-        setIsLoading(true)
+        showLoader();
 
         await strategy.save()
 
         strategy.markAsSaved()
 
+        hideLoader();
+
         toast.success(
           'Settings saved successfully'
         )
       } catch (error) {
+        
+        hideLoader();
+
         console.error(error)
 
         toast.error(
           'Failed to save settings'
         )
-      } finally {
-        setIsLoading(false)
-      }
+      } 
     }
-
-  if (isLoading) {
-    return <FullscreenLoader />
-  }
 
   return (
     <header className="flex h-16 items-center justify-between border-b border-gray-800 bg-[#111827] px-6">

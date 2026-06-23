@@ -2,12 +2,9 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuthStore } from '@/src/store/auth.store'
+import { useLoaderStore } from '@/src/store/loader.store'
 
-import { useAuthStore }
-  from '@/src/store/auth.store'
-
-import FullscreenLoader
-  from '@/src/components/ui/fullscreen-loader'
 
 export default function GuestRoute({
   children,
@@ -30,10 +27,21 @@ export default function GuestRoute({
         state.isAuthLoading
     )
 
+  const showLoader = useLoaderStore(
+        (state) => state.show
+      )
+    
+  const hideLoader = useLoaderStore(
+    (state) => state.hide
+  )
+
   useEffect(() => {
 
     if (isAuthLoading) {
+      showLoader()
       return
+    } else {
+      hideLoader()
     }
 
     if (accessToken) {
@@ -47,10 +55,6 @@ export default function GuestRoute({
     isAuthLoading,
     router
   ])
-
-  if (isAuthLoading) {
-    return <FullscreenLoader />
-  }
 
   if (accessToken) {
     return null

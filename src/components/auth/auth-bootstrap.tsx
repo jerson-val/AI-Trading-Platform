@@ -30,8 +30,7 @@ AuthBootstrap() {
 
         try {
 
-          const response =
-            await refreshToken()
+          const response = await refreshToken()
 
           setLogin(response);
 
@@ -41,9 +40,7 @@ AuthBootstrap() {
 
         } finally {
 
-          setAuthLoading(
-            false
-          )
+          setAuthLoading(false)
         }
       }
 

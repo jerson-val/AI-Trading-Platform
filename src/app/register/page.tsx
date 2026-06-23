@@ -3,12 +3,12 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
-import FullscreenLoader from '@/src/components/ui/fullscreen-loader'
 import { Eye, EyeOff } from 'lucide-react'
 import { validateConfirmPassword, validateEmail, validateFullName, validatePassword } from '@/src/utils/validators/input.validators'
 import { register } from '@/src/services/auth/auth.service'
 import { useAuthStore } from '@/src/store/auth.store'
 import GuestRoute from '@/src/components/auth/guess-route'
+import { useLoaderStore } from '@/src/store/loader.store'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -17,8 +17,13 @@ export default function RegisterPage() {
       (state) => state.login
     )
 
-  const [loading, setLoading] =
-    useState(false)
+  const showLoader = useLoaderStore(
+      (state) => state.show
+    )
+  
+  const hideLoader = useLoaderStore(
+    (state) => state.hide
+  )
 
   const [fullName, setFullName] =
     useState('')
@@ -83,7 +88,7 @@ export default function RegisterPage() {
 
     try {
 
-      setLoading(true)
+      showLoader()
 
       const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -96,6 +101,8 @@ export default function RegisterPage() {
 
       login(response);
 
+      hideLoader()
+
       toast.success(
         'Account created successfully'
       )
@@ -103,7 +110,7 @@ export default function RegisterPage() {
       router.replace('/dashboard')
 
     } catch (error: any) {
-      setLoading(false)
+      hideLoader()
 
       if (error.response?.status === 400) {
         toast.error('This email is already registered')
@@ -116,11 +123,6 @@ export default function RegisterPage() {
 
   return (
     <GuestRoute>
-      <> 
-        {loading && (
-          <FullscreenLoader />
-        )}
-
         <div className="relative min-h-screen overflow-y-auto bg-cover bg-center bg-no-repeat p-5"
           style={{
             backgroundImage:
@@ -350,7 +352,6 @@ export default function RegisterPage() {
           </div>
           
         </div>
-      </>
     </GuestRoute>
   )
 }
