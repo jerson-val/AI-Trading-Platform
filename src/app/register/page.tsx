@@ -7,7 +7,6 @@ import { Eye, EyeOff } from 'lucide-react'
 import { validateConfirmPassword, validateEmail, validateFullName, validatePassword } from '@/src/utils/validators/input.validators'
 import { register } from '@/src/services/auth/auth.service'
 import { useAuthStore } from '@/src/store/auth.store'
-import GuestRoute from '@/src/components/auth/guess-route'
 import { useLoaderStore } from '@/src/store/loader.store'
 
 export default function RegisterPage() {
@@ -122,7 +121,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <GuestRoute>
+
         <div className="relative min-h-screen overflow-y-auto bg-cover bg-center bg-no-repeat p-5"
           style={{
             backgroundImage:
@@ -352,6 +351,5 @@ export default function RegisterPage() {
           </div>
           
         </div>
-    </GuestRoute>
   )
 }

@@ -7,11 +7,9 @@ import AISummary from '@/src/components/backtesting/ai-summary/ai-summary'
 import RiskAnalysis from '@/src/components/backtesting/risk-analysis/risk-analysis'
 import TradeTimeline from '@/src/components/backtesting/trade-timeline/trade-timeline'
 import TradesHistory from '@/src/components/backtesting/trades-history/trades-history'
-import ProtectedRoute from '@/src/components/auth/protected-route'
 
 export default function BacktestingPage() {
   return (
-    <ProtectedRoute>
       <div className="space-y-5">
         {/* TOP CONTROLS */}
         <BacktestControls />
@@ -38,6 +36,5 @@ export default function BacktestingPage() {
         {/* TABLE */}
         <TradesHistory />
       </div>
-    </ProtectedRoute>
   )
 }

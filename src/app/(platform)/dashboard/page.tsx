@@ -2,11 +2,10 @@ import StatsCards from '@/src/components/dashboard/stats-cards'
 import PerformanceChart from '@/src/components/dashboard/performance-chart'
 import RecentTrades from '@/src/components/dashboard/recent-trades'
 import TradingInsights from '@/src/components/dashboard/trading-insights'
-import ProtectedRoute from '@/src/components/auth/protected-route'
 
 export default function DashboardPage() {
   return (
-    <ProtectedRoute>
+
       <div className="space-y-5">
         {/* STATS */}
         <StatsCards />
@@ -27,7 +26,6 @@ export default function DashboardPage() {
         {/* RECENT TRADES */}
         <RecentTrades />
       </div>
-    </ProtectedRoute>
     
   )
 }

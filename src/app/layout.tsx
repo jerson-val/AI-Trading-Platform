@@ -2,9 +2,8 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Toaster } from 'react-hot-toast'
 import { Inter } from 'next/font/google'
-import TokenRefreshProvider from '../providers/auth/token-refresh-provider'
-import AuthBootstrap from '../components/auth/auth-bootstrap'
 import FullscreenLoader from '../components/ui/fullscreen-loader'
+import AuthProvider from '../providers/auth/auth-provider'
 
 export const metadata: Metadata = {
   title: 'Smart Money AI Trading Platform',
@@ -25,11 +24,10 @@ export default function RootLayout({
 
       <body className={inter.className}>
 
-        <AuthBootstrap />
-        
-        <TokenRefreshProvider />
+          <AuthProvider>
 
-          {children}
+            {children}
+          </AuthProvider>
 
           <Toaster
             position="top-center"

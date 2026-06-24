@@ -5,11 +5,9 @@ import MarketFilters from '@/src/components/ai/market-filters/market-filters'
 import AIPerformance from '@/src/components/ai/ai-performance/ai-performance'
 import SignalPreview from '@/src/components/ai/signal-preview/signal-preview'
 import SignalHistory from '@/src/components/ai/signal-history/signal-history'
-import ProtectedRoute from '@/src/components/auth/protected-route'
 
 export default function AIEnginePage() {
   return (
-    <ProtectedRoute>
       <div className="space-y-5">
         {/* TOP */}
         <div className="grid grid-cols-12 gap-5">
@@ -39,7 +37,6 @@ export default function AIEnginePage() {
           
         </div>
       </div>
-    </ProtectedRoute>
     
   )
 }

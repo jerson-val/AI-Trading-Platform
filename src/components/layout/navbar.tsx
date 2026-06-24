@@ -2,7 +2,6 @@
 
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuthStore } from '@/src/store/auth.store'
-import { useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { settingsStrategyRegistry } from '@/src/strategies/settings-strategy.registry'
 import { useUnsavedChanges } from '@/src/hooks/use-unsaved-changes'
