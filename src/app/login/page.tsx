@@ -7,7 +7,6 @@ import { useAuthStore } from '@/src/store/auth.store'
 import { Eye, EyeOff } from 'lucide-react'
 import { validateEmail, validatePassword } from '@/src/utils/validators/input.validators'
 import { login as loginCall } from '@/src/services/auth/auth.service'
-import GuestRoute from '@/src/components/auth/guess-route'
 import { useLoaderStore } from '@/src/store/loader.store'
 
 export default function LoginPage() {
@@ -86,7 +85,7 @@ export default function LoginPage() {
   }
 
   return (
-    <GuestRoute>
+
         <div className="relative flex min-h-screen items-center justify-center bg-cover bg-center bg-no-repeat p-5"
           style={{
             backgroundImage:
@@ -228,6 +227,6 @@ export default function LoginPage() {
           </div>
 
         </div>
-    </GuestRoute>
+
   )
 }

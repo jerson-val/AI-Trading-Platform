@@ -7,11 +7,9 @@ import AppearanceSettings from '@/src/components/settings/appearance-settings/ap
 import SecuritySettings from '@/src/components/settings/security-settings/security-settings'
 import ConnectedAccounts from '@/src/components/settings/connected-accounts/connected-accounts'
 import PaymentSettings from '@/src/components/settings/payment-settings/payment-settings'
-import ProtectedRoute from '@/src/components/auth/protected-route'
 
 export default function SettingsPage() {
   return (
-    <ProtectedRoute>
       <div className="space-y-5">
         {/* TOP */}
         <div className="grid grid-cols-12 gap-5">
@@ -36,6 +34,5 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
-    </ProtectedRoute>
   )
 }

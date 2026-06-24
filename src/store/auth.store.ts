@@ -1,72 +1,52 @@
 import { create } from 'zustand'
 import { LoginResponse } from '../types/auth/login-response'
+import { useLoaderStore } from './loader.store'
 
-/*interface User {
-  id: string
-  email: string
-  fullName: string
-}*/
+type AuthStatus =
+  | 'booting'
+  | 'authenticated'
+  | 'guest'
+  | 'expired'
 
 interface AuthState {
   name: string | null
-
   accessToken: string | null
-
   accessTokenExpiresAt: Date | null
 
-  isAuthLoading: boolean
+  authStatus: AuthStatus
 
-  login: (loginResponse: LoginResponse) => void
-
-  setAccessToken: (
-    token: string,
-    accessTokenExpiresAt: Date
-  ) => void
-
+  login: (data: LoginResponse) => void
   logout: () => void
-
-  setAuthLoading: (
-    value: boolean
-  ) => void
+  setAuthStatus: (status: AuthStatus) => void
 }
 
-export const useAuthStore =
-  create<AuthState>((set) => ({
-    name: null,
+export const useAuthStore = create<AuthState>((set) => ({
+  name: null,
+  accessToken: null,
+  accessTokenExpiresAt: null,
 
-    accessToken: null,
+  authStatus: 'booting',
 
-    accessTokenExpiresAt: null,
+  setAuthStatus: (status) =>
+    set({ authStatus: status }),
 
-    isAuthLoading: true,
+  login: ({ name, accessToken, accessTokenExpiresAt }) => {
+    set({
+      name,
+      accessToken,
+      accessTokenExpiresAt,
+      authStatus: 'authenticated',
+    })
+  },
 
-    login: ({ name, accessToken, accessTokenExpiresAt }: LoginResponse) =>
-      set({
-        name,
-        accessToken,
-        accessTokenExpiresAt
-      }),
+  logout: () => {
+    set({
+      name: null,
+      accessToken: null,
+      accessTokenExpiresAt: null,
+      authStatus: 'guest',
+    })
 
-    setAccessToken: (
-      token,
-      accessTokenExpiresAt
-    ) =>
-      set({
-        accessToken: token,
-        accessTokenExpiresAt,
-      }),
-
-    logout: () =>
-      set({
-        name: null,
-        accessToken: null,
-        accessTokenExpiresAt: null,
-      }),
-
-    setAuthLoading: (
-      value
-    ) =>
-      set({
-        isAuthLoading: value,
-      }),
-  }))
+    useLoaderStore.getState().reset()
+  },
+}))

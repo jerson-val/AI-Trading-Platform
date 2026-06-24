@@ -1,68 +1,98 @@
-import { useAuthStore } from '@/src/store/auth.store'
 import axios from 'axios'
 import { refreshToken } from '../auth/auth.service'
-import toast from 'react-hot-toast'
+import { useAuthStore } from '@/src/store/auth.store'
 
-const accessToken =
-  useAuthStore.getState().accessToken
+let isRefreshing = false
+let failedQueue: any[] = []
+
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error)
+    } else {
+      prom.resolve(token)
+    }
+  })
+  failedQueue = []
+}
 
 const publicRoutes = [
   '/auth/login',
   '/auth/register',
-  '/auth/refresh-token'
+  '/auth/refresh-token',
 ]
 
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
-
   withCredentials: true,
 })
 
-api.interceptors.request.use(
-  (config) => {
-    const token =
-      useAuthStore
-        .getState()
-        .accessToken
+/* =========================
+   REQUEST INTERCEPTOR
+========================= */
+api.interceptors.request.use((config) => {
+  const token = useAuthStore.getState().accessToken
 
-    if (token) {
-      config.headers.Authorization =
-        `Bearer ${token}`
-    }
-
-    return config
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
   }
-)
 
+  return config
+})
+
+/* =========================
+   RESPONSE INTERCEPTOR
+========================= */
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config
+    const token = useAuthStore.getState().accessToken
 
     if (
-      accessToken &&
+      token &&
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !publicRoutes.some(route => originalRequest.url?.includes(route))
+      !publicRoutes.some((route) =>
+        originalRequest.url?.includes(route)
+      )
     ) {
+      // 🔁 If already refreshing → queue request
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({
+            resolve: (newToken: string) => {
+              originalRequest.headers.Authorization = `Bearer ${newToken}`
+              resolve(api(originalRequest))
+            },
+            reject,
+          })
+        })
+      }
+
       originalRequest._retry = true
+      isRefreshing = true
 
       try {
-        const refreshResponse = await refreshToken()
+        const res = await refreshToken()
 
-        useAuthStore
-          .getState()
-          .setAccessToken(
-            refreshResponse.accessToken,
-            refreshResponse.accessTokenExpiresAt
-          )
+        // ✅ update global state
+        useAuthStore.getState().login(res);
+
+        processQueue(null, res.accessToken)
+
+        originalRequest.headers.Authorization = `Bearer ${res.accessToken}`
 
         return api(originalRequest)
-      } catch {
+      } catch (err) {
+        processQueue(err, null)
 
-        toast.error('Your session has expired, Please sign in again to continue.')
+        // 🔥 IMPORTANT: delegate logout to controller/store ONLY
+        useAuthStore.getState().logout()
 
-        return Promise.reject(error)
+        return Promise.reject(err)
+      } finally {
+        isRefreshing = false
       }
     }
 

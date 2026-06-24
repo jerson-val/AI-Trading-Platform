@@ -6,6 +6,8 @@ interface LoaderState {
   show: () => void
 
   hide: () => void
+
+  reset: () => void
 }
 
 export const useLoaderStore =
@@ -25,4 +27,6 @@ export const useLoaderStore =
           state.count - 1
         ),
       })),
+
+      reset: () => set({ count: 0 }),
 }))
