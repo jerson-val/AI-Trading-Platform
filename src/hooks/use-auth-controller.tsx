@@ -36,7 +36,13 @@ export const useAuthController = () => {
         const res = await refreshToken()
         login(res)
       } catch {
-        setAuthStatus('guest')
+        if (!isGuestRoute) {
+          setAuthStatus('expired')
+
+          setTimeout(() => logout(), 0)
+        } else {
+          setAuthStatus('guest')
+        }
       }
     }
 
