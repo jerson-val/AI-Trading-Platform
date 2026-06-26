@@ -5,7 +5,6 @@ import { useSettingsStore } from "@/src/store/settings.store"
 import { preventInvalidNumberKeys, restoreZeroIfEmpty } from "@/src/utils/numbers/number-input.utils"
 import { useState } from "react"
 import Select from "../../ui/select/Select"
-import { SelectOption } from "../../ui/select/selectCustom"
 
 export default function TradingSettings() {
 
