@@ -3,9 +3,10 @@
 import { useMemo, useState } from 'react'
 import { timeZoneConfig } from '@/src/config/settings/timeZone'
 import { useSettingsStore } from '@/src/store/settings.store'
-import {
-  validateFullName,
-} from '@/src/utils/validators/input.validators'
+import { validateFullName } from '@/src/utils/validators/input.validators'
+import Select from "react-select";
+import { selectStyles } from '@/src/app/select.styles'
+import { PROFILE_SETTINGS } from '@/src/enums/settings/profile-settings.enum'
 
 export default function ProfileSettings() {
 
@@ -44,28 +45,34 @@ export default function ProfileSettings() {
     return (tzDate.getTime() - utcDate.getTime()) / 60000
   }
 
-  const timeZoneValues = useMemo(() => {
+  const timeZoneOptions = useMemo(() => {
     return timeZoneConfig
-      .map((tz) => ({
-        ...tz,
-        offsetMinutes: getOffsetMinutes(tz.value),
-        time: new Intl.DateTimeFormat('en-US', {
+      .map((tz) => {
+        const offsetMinutes = getOffsetMinutes(tz.value);
+
+        const time = new Intl.DateTimeFormat("en-US", {
           timeZone: tz.value,
-          timeZoneName: 'shortOffset',
+          timeZoneName: "shortOffset",
         })
           .formatToParts(new Date())
-          .find(p => p.type === 'timeZoneName')?.value,
-      }))
+          .find((p) => p.type === "timeZoneName")?.value;
+
+        return {
+          value: tz.value,
+          label: `(${time}) ${tz.label}`,
+          search: tz.value,
+          offsetMinutes,
+        };
+      })
       .sort((a, b) => {
-        // 1. sort by REAL numeric offset
         if (a.offsetMinutes !== b.offsetMinutes) {
-          return a.offsetMinutes - b.offsetMinutes
+          return a.offsetMinutes - b.offsetMinutes;
         }
 
-        // 2. fallback alphabetical
-        return a.label.localeCompare(b.label)
+        return a.label.localeCompare(b.label);
       })
-  }, [])
+      .map(({ offsetMinutes, ...option }) => option);
+  }, []);
 
   return (
     <div className="rounded-xl border border-gray-800 bg-[#111827] p-5">
@@ -87,7 +94,7 @@ export default function ProfileSettings() {
             type="text"
             value={settings.profile.name}
             onChange={(e) => {
-              handleProfileChange('name', e.target.value)
+              handleProfileChange(PROFILE_SETTINGS.NAME, e.target.value)
               setErrors((prev) => ({ ...prev, name: '' }))
             }}
             onBlur={() =>
@@ -128,19 +135,21 @@ export default function ProfileSettings() {
             Timezone
           </label>
 
-          <select
-            value={settings.profile.timeZone}
-            onChange={(e) =>
-              handleProfileChange('timeZone', e.target.value)
+          <Select
+            styles={selectStyles}
+            options={timeZoneOptions}
+            value={timeZoneOptions.find(
+              (option) => option.value === settings.profile.timeZone
+            )}
+            onChange={(selected) =>
+              handleProfileChange(PROFILE_SETTINGS.TIME_ZONE, selected?.value ?? "")
             }
-            className="w-full rounded-lg border border-gray-700 bg-[#1f2937] px-3 py-2 text-sm outline-none"
-          >
-            {timeZoneValues.map((tz) => (
-              <option key={tz.value} value={tz.value}>
-                ({tz.time}) {tz.label}
-              </option>
-            ))}
-          </select>
+            placeholder="Select..."
+            isSearchable
+            menuPlacement="auto"
+            menuPosition="fixed"
+            menuPortalTarget={document.body}
+          />
         </div>
       </div>
     </div>
