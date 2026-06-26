@@ -4,6 +4,8 @@ import { LEVERAGE_OPTIONS } from "@/src/config/trading-settings/leverage.config"
 import { useSettingsStore } from "@/src/store/settings.store"
 import { preventInvalidNumberKeys, restoreZeroIfEmpty } from "@/src/utils/numbers/number-input.utils"
 import { useState } from "react"
+import Select from "../../ui/select/Select"
+import { SelectOption } from "../../ui/select/selectCustom"
 
 export default function TradingSettings() {
 
@@ -63,6 +65,36 @@ export default function TradingSettings() {
     return value
   }
 
+  const selectAutoRiskOptions = [
+    {
+      label: 'Enabled',
+      value: 'true'
+    },
+    {
+      label: 'Disabled',
+      value: 'false'
+    }
+  ]
+
+  const selectFavoritePairsOptions = [
+    {
+      label: 'BTCUSDT',
+      value: 'BTCUSDT'
+    },
+    {
+      label: 'ETHUSDT',
+      value: 'ETHUSDT'
+    }
+  ]
+
+  const leverageOptions = LEVERAGE_OPTIONS.map((item) => {
+      return {
+        value: item,
+        label: `1:${item}`
+      }
+  })
+  
+
   return (
     <div className="rounded-xl border border-gray-800 bg-[#111827] p-5">
       <div className="mb-5">
@@ -114,7 +146,7 @@ export default function TradingSettings() {
             onKeyDown={
               preventInvalidNumberKeys
             }
-            className={`w-full rounded-lg border bg-[#1f2937] px-3 py-2 text-sm outline-none ${
+            className={`w-full rounded-lg border bg-[#1f2937] px-3 py-3 text-sm outline-none ${
               riskError
                 ? 'border-red-500'
                 : 'border-gray-700'
@@ -133,26 +165,15 @@ export default function TradingSettings() {
             Default Leverage
           </label>
 
-          <select
-            value={settings.tradingSettings.leverage}
-            onChange={(e) =>
+          <Select
+            onChange={(selected: string) =>
               updateTradingSettings({
-                leverage: e.target.value,
+                leverage: selected
               })
             }
-            className="w-full rounded-lg border border-gray-700 bg-[#1f2937] px-3 py-2 text-sm outline-none"
-          >
-            {LEVERAGE_OPTIONS.map(
-            (value) => (
-              <option
-                key={value}
-                value={value}
-              >
-                {`1:${value}`}
-              </option>
-            )
-          )}
-        </select>
+            value={settings.tradingSettings.leverage}
+            options={leverageOptions}
+          />
         </div>
 
         <div>
@@ -160,23 +181,16 @@ export default function TradingSettings() {
             Preferred Pair
           </label>
 
-          <select 
-            value={settings.tradingSettings.preferedPair}
-            onChange={(e) =>
+          <Select
+            onChange={(selected: string) =>
               updateTradingSettings({
-                preferedPair: e.target.value
+                preferedPair: selected
               })
             }
-            className="w-full rounded-lg border border-gray-700 bg-[#1f2937] px-3 py-2 text-sm outline-none"
-          >
-            <option>
-              BTCUSDT
-            </option>
+            value={settings.tradingSettings.preferedPair}
+            options={selectFavoritePairsOptions}
+          />
 
-            <option>
-              ETHUSDT
-            </option>
-          </select>
         </div>
 
         <div>
@@ -184,26 +198,16 @@ export default function TradingSettings() {
             Auto Risk Management
           </label>
 
-          <select 
-            value={
-              settings.tradingSettings.autoRisk
-                ? 'true'
-                : 'false'
-            }
-            onChange={(e) =>
+          <Select
+            onChange={(selected: string) =>
               updateTradingSettings({
-                autoRisk: e.target.value === 'true'
+                autoRisk: selected
               })
             }
-            className="w-full rounded-lg border border-gray-700 bg-[#1f2937] px-3 py-2 text-sm outline-none">
-            <option value="true">
-              Enabled
-            </option>
+            value={settings.tradingSettings.autoRisk}
+            options={selectAutoRiskOptions}
+          />
 
-            <option value="false">
-              Disabled
-            </option>
-          </select>
         </div>
       </div>
     </div>

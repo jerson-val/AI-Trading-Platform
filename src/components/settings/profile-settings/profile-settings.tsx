@@ -4,9 +4,9 @@ import { useMemo, useState } from 'react'
 import { timeZoneConfig } from '@/src/config/settings/timeZone'
 import { useSettingsStore } from '@/src/store/settings.store'
 import { validateFullName } from '@/src/utils/validators/input.validators'
-import Select from "react-select";
-import { selectStyles } from '@/src/app/select.styles'
 import { PROFILE_SETTINGS } from '@/src/enums/settings/profile-settings.enum'
+import { formatInTimeZone, getTimezoneOffset } from "date-fns-tz";
+import Select from '../../ui/select/Select'
 
 export default function ProfileSettings() {
 
@@ -31,47 +31,35 @@ export default function ProfileSettings() {
     }))
   }
 
-  const getOffsetMinutes = (tz: string) => {
-    const now = new Date()
-
-    const utcDate = new Date(
-      now.toLocaleString('en-US', { timeZone: 'UTC' })
-    )
-
-    const tzDate = new Date(
-      now.toLocaleString('en-US', { timeZone: tz })
-    )
-
-    return (tzDate.getTime() - utcDate.getTime()) / 60000
-  }
-
   const timeZoneOptions = useMemo(() => {
     return timeZoneConfig
       .map((tz) => {
-        const offsetMinutes = getOffsetMinutes(tz.value);
+        let offsetMinutes = 0;
+        let offsetLabel = "GMT+00:00";
 
-        const time = new Intl.DateTimeFormat("en-US", {
-          timeZone: tz.value,
-          timeZoneName: "shortOffset",
-        })
-          .formatToParts(new Date())
-          .find((p) => p.type === "timeZoneName")?.value;
+        try {
+          offsetMinutes = getTimezoneOffset(tz.value) / 60000;
+
+          const rawOffset = formatInTimeZone(
+            new Date(),
+            tz.value,
+            "xxx"
+          );
+
+          offsetLabel = `GMT${rawOffset}`;
+        } catch {
+          offsetMinutes = 0;
+          offsetLabel = "GMT+00:00";
+        }
 
         return {
           value: tz.value,
-          label: `(${time}) ${tz.label}`,
+          label: `(${offsetLabel}) ${tz.label}`,
           search: tz.value,
           offsetMinutes,
         };
       })
-      .sort((a, b) => {
-        if (a.offsetMinutes !== b.offsetMinutes) {
-          return a.offsetMinutes - b.offsetMinutes;
-        }
-
-        return a.label.localeCompare(b.label);
-      })
-      .map(({ offsetMinutes, ...option }) => option);
+      .sort((a, b) => a.offsetMinutes - b.offsetMinutes);
   }, []);
 
   return (
@@ -103,7 +91,7 @@ export default function ProfileSettings() {
                 name: validateFullName(settings.profile.name),
               }))
             }
-            className={`w-full rounded-lg border bg-[#1f2937] px-3 py-2 text-sm outline-none transition ${
+            className={`w-full rounded-lg border bg-[#1f2937] p-3 text-sm outline-none transition ${
               errors.name
                 ? 'border-red-500'
                 : 'border-gray-700 focus:border-blue-500'
@@ -125,7 +113,7 @@ export default function ProfileSettings() {
             type="email"
             readOnly
             value={settings.profile.email}
-            className="w-full rounded-lg border border-gray-700 bg-[#0f172a] px-3 py-2 text-sm text-gray-400 cursor-not-allowed"
+            className="w-full rounded-lg border border-gray-700 bg-[#0f172a] p-3 text-sm text-gray-400 cursor-not-allowed"
           />
         </div>
 
@@ -136,19 +124,13 @@ export default function ProfileSettings() {
           </label>
 
           <Select
-            styles={selectStyles}
-            options={timeZoneOptions}
-            value={timeZoneOptions.find(
-              (option) => option.value === settings.profile.timeZone
-            )}
             onChange={(selected) =>
-              handleProfileChange(PROFILE_SETTINGS.TIME_ZONE, selected?.value ?? "")
+              handleProfileChange(PROFILE_SETTINGS.TIME_ZONE, selected ?? "")
             }
-            placeholder="Select..."
-            isSearchable
-            menuPlacement="auto"
-            menuPosition="fixed"
-            menuPortalTarget={document.body}
+            value={settings.profile.timeZone ?? ""}
+            isSearchable={true}
+            options={timeZoneOptions}
+            placeholder='Select...'
           />
         </div>
       </div>

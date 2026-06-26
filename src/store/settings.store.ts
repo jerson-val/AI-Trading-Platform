@@ -36,9 +36,9 @@ export const useSettingsStore =
           timeZone: 'UTC-5'
         },
         tradingSettings: {
-            autoRisk: true,
+            autoRisk: 'true',
             leverage: '20',
-            preferedPair: 'BTC/USD',
+            preferedPair: 'BTCUSDT',
             risk: '2',
         },
         notifications: {
