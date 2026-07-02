@@ -1,24 +1,34 @@
 import { create } from 'zustand'
 import { Settings } from '../types/settings/settings'
 import { TradingSettings } from '../types/settings/trading-settings'
+import { ProfileSettings } from '../types/settings/profile-settings'
+import { NotificationSettings } from '../types/settings/notification-settings'
 
 interface SettingsStore {
   settings: Settings
 
   hasUnsavedChanges: boolean
 
-  setSettings: (
-    updater:
-      | Partial<Settings>
-      | ((
-          prev: Settings
-        ) => Settings)
-  ) => void
-
   markAsSaved: () => void
 
   updateTradingSettings: (
     tradingSettings: Partial<TradingSettings>
+  ) => void
+
+  setTradingSettings: (
+    tradingSettings: Partial<TradingSettings>
+  ) => void
+
+  updateProfileSettings: (
+    profileSettings: Partial<ProfileSettings>
+  ) => void
+
+  setProfileSettings: (
+    profileSettings: Partial<ProfileSettings>
+  ) => void
+
+  setNotificationsSettings: (
+    notifications: Partial<NotificationSettings>
   ) => void
 
   toggleNotification: (
@@ -71,28 +81,11 @@ export const useSettingsStore =
 
       hasUnsavedChanges: false,
 
-      setSettings: (
-        updater
-      ) =>
-        set((state) => ({
-          settings:
-            typeof updater ===
-            'function'
-              ? updater(
-                  state.settings
-                )
-              : {
-                  ...state.settings,
-                  ...updater,
-                },
-
-          hasUnsavedChanges: true,
-        })),
-
       markAsSaved: () =>
         set({
           hasUnsavedChanges: false,
         }),
+      
       updateTradingSettings: (
         tradingSettings
       ) =>
@@ -105,6 +98,55 @@ export const useSettingsStore =
             },
           },
           hasUnsavedChanges: true,
+        })),
+
+        setTradingSettings: (
+          tradingSettings
+        ) => set((state) => ({
+          settings: {
+            ...state.settings,
+            tradingSettings: {
+              ...state.settings.tradingSettings,
+              ...tradingSettings,
+            },
+          }
+        })),
+
+        updateProfileSettings: (
+          profileSettings
+        ) => set((state) => ({
+          settings: {
+            ...state.settings,
+            profile: {
+              ...state.settings.profile,
+              ...profileSettings,
+            },
+          },
+          hasUnsavedChanges: true,
+        })),
+
+        setProfileSettings: (
+          profileSettings
+        ) => set((state) => ({
+          settings: {
+            ...state.settings,
+            profile: {
+              ...state.settings.profile,
+              ...profileSettings,
+            },
+          }
+        })),
+
+        setNotificationsSettings: (
+          notifications
+        ) => set((state) => ({
+          settings: {
+            ...state.settings,
+            notifications: {
+              ...state.settings.notifications,
+              ...notifications,
+            },
+          }
         })),
 
         toggleNotification: (key) =>

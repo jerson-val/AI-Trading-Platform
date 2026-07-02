@@ -11,7 +11,7 @@ import Select from '../../ui/select/Select'
 export default function ProfileSettings() {
 
   const settings = useSettingsStore((state) => state.settings)
-  const setSettings = useSettingsStore((state) => state.setSettings)
+  const setProfileSettings = useSettingsStore((state) => state.updateProfileSettings)
 
   const [errors, setErrors] = useState({
     name: '',
@@ -22,13 +22,9 @@ export default function ProfileSettings() {
     field: keyof typeof settings.profile,
     value: string
   ) => {
-    setSettings((prev) => ({
-      ...prev,
-      profile: {
-        ...prev.profile,
-        [field]: value,
-      },
-    }))
+    setProfileSettings({
+      [field]: value,
+    })
   }
 
   const timeZoneOptions = useMemo(() => {
