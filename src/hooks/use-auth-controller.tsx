@@ -89,7 +89,7 @@ export const useAuthController = () => {
   useEffect(() => {
     if (authStatus === 'booting') return
 
-    if (authStatus === 'guest' || authStatus === 'expired') {
+    if ((authStatus === 'guest' || authStatus === 'expired') && !isGuestRoute) {
       router.replace('/login')
       return
     }
