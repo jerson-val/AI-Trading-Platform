@@ -41,15 +41,15 @@ export const useSettingsStore =
     (set) => ({
       settings: {
         profile: {
-          name: 'John Doe store',
-          email: 'test@gmail.com',
-          timeZone: 'UTC-5'
+          name: '',
+          email: '',
+          timeZone: ''
         },
         tradingSettings: {
-            autoRisk: 'true',
-            leverage: '20',
-            preferedPair: 'BTCUSDT',
-            risk: '2',
+            autoRisk: '',
+            leverage: '',
+            preferedPair: '',
+            risk: '',
         },
         notifications: {
             email: {
@@ -74,8 +74,8 @@ export const useSettingsStore =
             },
         },
         appearance: {
-            chartTheme: 'dark',
-            theme: 'dark',
+            chartTheme: '',
+            theme: '',
         },
       },
 

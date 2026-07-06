@@ -3,12 +3,50 @@
 import ProfileSettings from '@/src/components/settings/profile-settings/profile-settings'
 import TradingSettings from '@/src/components/settings/trading-settings/trading-settings'
 import NotificationsSettings from '@/src/components/settings/notifications-settings/notifications-settings'
-import AppearanceSettings from '@/src/components/settings/appearance-settings/appearance-settings'
 import SecuritySettings from '@/src/components/settings/security-settings/security-settings'
 import ConnectedAccounts from '@/src/components/settings/connected-accounts/connected-accounts'
 import PaymentSettings from '@/src/components/settings/payment-settings/payment-settings'
+import { useEffect } from 'react'
+import { getUserSettings } from '@/src/services/settings/settings.service'
+import { useSettingsStore } from '@/src/store/settings.store'
+import { useLoaderStore } from '@/src/store/loader.store'
+import toast from 'react-hot-toast'
 
 export default function SettingsPage() {
+
+  const setProfileSettings = useSettingsStore((state) => state.setProfileSettings)
+  const setNotificationsSettings = useSettingsStore((state) => state.setNotificationsSettings)
+  const setTradingSettings = useSettingsStore((state) => state.setTradingSettings)
+
+  const showLoader = useLoaderStore((state) => state.show)
+  const hideLoader = useLoaderStore((state) => state.hide)
+
+  useEffect(() => {
+      const loadSettings = async () => {
+        try {
+
+            showLoader()
+
+            const settings = await getUserSettings();
+
+            setProfileSettings(settings.profile)
+            setNotificationsSettings(settings.notifications)
+            setTradingSettings(settings.tradingSettings)
+        } catch (error) {
+
+          toast.error('Unable to load your settings.')
+
+        } finally {
+
+          hideLoader()
+
+        }
+      }
+
+      loadSettings()
+
+  }, [])
+
   return (
       <div className="space-y-5">
         {/* TOP */}
