@@ -11,6 +11,7 @@ import { getUserSettings } from '@/src/services/settings/settings.service'
 import { useSettingsStore } from '@/src/store/settings.store'
 import { useLoaderStore } from '@/src/store/loader.store'
 import toast from 'react-hot-toast'
+import { mapNotificationSettings } from '@/src/mappers/settings.mapper'
 
 export default function SettingsPage() {
 
@@ -30,7 +31,7 @@ export default function SettingsPage() {
             const settings = await getUserSettings();
 
             setProfileSettings(settings.profile)
-            setNotificationsSettings(settings.notifications)
+            setNotificationsSettings(mapNotificationSettings(settings.notifications))
             setTradingSettings(settings.tradingSettings)
         } catch (error) {
 

@@ -1,8 +1,8 @@
-import { Settings } from "@/src/types/settings/settings"
 import { api } from "../api/client"
+import { UserSettingsResponse } from "@/src/types/settings/settings-response"
 
 export const getUserSettings = async () => {
-  const response = await api.get<Settings>('/user-settings')
+  const response = await api.get<UserSettingsResponse>('/user-settings')
 
   return response.data
 }
