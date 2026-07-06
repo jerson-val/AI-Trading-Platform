@@ -12,6 +12,7 @@ import { useSettingsStore } from '@/src/store/settings.store'
 import { useLoaderStore } from '@/src/store/loader.store'
 import toast from 'react-hot-toast'
 import { mapNotificationSettings } from '@/src/mappers/settings.mapper'
+import { useAuthStore } from '@/src/store/auth.store'
 
 export default function SettingsPage() {
 
@@ -22,7 +23,14 @@ export default function SettingsPage() {
   const showLoader = useLoaderStore((state) => state.show)
   const hideLoader = useLoaderStore((state) => state.hide)
 
+  const authStatus = useAuthStore(state => state.authStatus);
+
   useEffect(() => {
+
+    if (authStatus !== 'authenticated') {
+      return;
+    }
+
       const loadSettings = async () => {
         try {
 
@@ -46,7 +54,7 @@ export default function SettingsPage() {
 
       loadSettings()
 
-  }, [])
+  }, [authStatus])
 
   return (
       <div className="space-y-5">
