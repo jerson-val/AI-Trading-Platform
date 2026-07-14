@@ -5,7 +5,6 @@ import { useSettingsStore } from "@/src/store/settings.store"
 import { preventInvalidNumberKeys, restoreZeroIfEmpty } from "@/src/utils/numbers/number-input.utils"
 import { useState } from "react"
 import Select from "../../ui/select/Select"
-import { SelectOption } from "../../ui/select/selectCustom"
 
 export default function TradingSettings() {
 
@@ -184,10 +183,10 @@ export default function TradingSettings() {
           <Select
             onChange={(selected: string) =>
               updateTradingSettings({
-                preferedPair: selected
+                preferredPair: selected
               })
             }
-            value={settings.tradingSettings.preferedPair}
+            value={settings.tradingSettings.preferredPair}
             options={selectFavoritePairsOptions}
           />
 

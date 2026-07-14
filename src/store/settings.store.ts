@@ -48,7 +48,7 @@ export const useSettingsStore =
         tradingSettings: {
             autoRisk: false,
             leverage: 0,
-            preferedPair: '',
+            preferredPair: '',
             risk: '',
         },
         notifications: {
