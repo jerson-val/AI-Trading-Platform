@@ -166,7 +166,7 @@ export default function TradingSettings() {
           </label>
 
           <Select
-            onChange={(selected: string) =>
+            onChange={(selected: number) =>
               updateTradingSettings({
                 leverage: selected
               })
