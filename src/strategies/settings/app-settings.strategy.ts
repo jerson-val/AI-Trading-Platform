@@ -1,6 +1,7 @@
 import { useSettingsStore } from '@/src/store/settings.store'
 import { saveSettings } from '@/src/services/settings.service'
 import { validateEmail, validateFullName } from '@/src/utils/validators/input.validators'
+import { mapNotificationSettingsToDto } from '@/src/mappers/settings.mapper'
 
 export const appSettingsStrategy = {
   save: async () => {
@@ -8,8 +9,15 @@ export const appSettingsStrategy = {
       useSettingsStore.getState()
         .settings
 
+    const settingsRequest = {
+      ...settings,
+      notifications: mapNotificationSettingsToDto(
+        settings.notifications
+      )
+    };
+
     await saveSettings(
-      settings
+      settingsRequest
     )
   },
 

@@ -1,3 +1,4 @@
+import { NotificationSettings } from "../types/settings/notification-settings"
 import { NotificationSettingsDto } from "../types/settings/notification-settings-dto"
 
 export const mapNotificationSettings = (
@@ -24,3 +25,13 @@ export const mapNotificationSettings = (
     value: dto.tradeExecutions,
   },
 })
+
+export const mapNotificationSettingsToDto = (notifications: NotificationSettings) : NotificationSettingsDto => {
+  return {
+    email: notifications.email.value,
+    aiWarnings: notifications.aiWarnings.value,
+    signalAlerts: notifications.signalAlerts.value,
+    telegramAlerts: notifications.telegramAlerts.value,
+    tradeExecutions: notifications.tradeExecutions.value,
+  }
+}

@@ -1,8 +1,8 @@
-import { Settings } from '../types/settings/settings'
+import { UserSettingsResponse } from '../types/settings/settings-response'
 
 export const saveSettings =
   async (
-    settings: Settings
+    settings: UserSettingsResponse
   ) => {
     // MOCK API DELAY
     //get the data form the store to do 
