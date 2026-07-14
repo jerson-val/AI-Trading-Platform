@@ -46,7 +46,7 @@ export const useSettingsStore =
           timeZone: ''
         },
         tradingSettings: {
-            autoRisk: '',
+            autoRisk: false,
             leverage: '',
             preferedPair: '',
             risk: '',

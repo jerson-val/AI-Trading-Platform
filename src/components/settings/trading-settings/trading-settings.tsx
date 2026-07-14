@@ -5,6 +5,7 @@ import { useSettingsStore } from "@/src/store/settings.store"
 import { preventInvalidNumberKeys, restoreZeroIfEmpty } from "@/src/utils/numbers/number-input.utils"
 import { useState } from "react"
 import Select from "../../ui/select/Select"
+import { SelectOption } from "../../ui/select/selectCustom"
 
 export default function TradingSettings() {
 
@@ -67,11 +68,11 @@ export default function TradingSettings() {
   const selectAutoRiskOptions = [
     {
       label: 'Enabled',
-      value: 'true'
+      value: true
     },
     {
       label: 'Disabled',
-      value: 'false'
+      value: false
     }
   ]
 
@@ -198,7 +199,7 @@ export default function TradingSettings() {
           </label>
 
           <Select
-            onChange={(selected: string) =>
+            onChange={(selected: boolean) =>
               updateTradingSettings({
                 autoRisk: selected
               })

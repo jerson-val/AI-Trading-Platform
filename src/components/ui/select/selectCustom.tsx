@@ -3,21 +3,21 @@
 import ReactSelect, { SingleValue } from "react-select";
 import { selectStyles } from "@/src/app/select.styles";
 
-export interface SelectOption {
-  value: string;
+export interface SelectOption<T> {
+  value: T;
   label: string;
 }
 
-interface SelectProps {
-  value: string;
-  onChange: (value: string) => void;
-  options: SelectOption[];
+interface SelectProps<T> {
+  value: T;
+  onChange: (value: T) => void;
+  options: SelectOption<T>[];
   isSearchable?: boolean;
   placeholder?: string;
   className?: string;
 }
 
-export default function SelectCustom({
+export default function SelectCustom<T>({
   value,
   onChange,
   options,
@@ -25,15 +25,15 @@ export default function SelectCustom({
   placeholder = "Select...",
   className = "",
   ...props
-}: SelectProps) {
+}: SelectProps<T>) {
   return (
-    <ReactSelect<SelectOption>
+    <ReactSelect<SelectOption<T>>
       styles={selectStyles}
       options={options}
       value={options.find((option) => option.value === value) ?? null}
-      onChange={(selected: SingleValue<SelectOption>) =>
-        onChange(selected?.value ?? "")
-      }
+      onChange={(selected) => {
+        if (selected) onChange(selected.value);
+      }}
       isSearchable={isSearchable}
       placeholder={placeholder}
       menuPortalTarget={typeof window !== "undefined" ? document.body : null}
