@@ -1,5 +1,5 @@
 import { useSettingsStore } from '@/src/store/settings.store'
-import { saveSettings } from '@/src/services/settings.service'
+import { saveSettings } from '@/src/services/settings/settings.service'
 import { validateEmail, validateFullName } from '@/src/utils/validators/input.validators'
 import { mapNotificationSettingsToDto } from '@/src/mappers/settings.mapper'
 

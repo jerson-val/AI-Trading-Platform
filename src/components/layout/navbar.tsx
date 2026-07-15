@@ -99,7 +99,7 @@ export default function Navbar() {
         console.error(error)
 
         toast.error(
-          'Failed to save settings'
+          'Failed to save settings try again'
         )
       } 
     }

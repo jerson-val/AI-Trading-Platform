@@ -6,3 +6,8 @@ export const getUserSettings = async () => {
 
   return response.data
 }
+
+export const saveSettings = async (settings: UserSettingsResponse) => {
+  const response = await api.put('/user-settings', settings)
+  return response
+}
