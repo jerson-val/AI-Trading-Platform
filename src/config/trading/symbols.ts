@@ -1,0 +1,10 @@
+export const SYMBOLS_OPTIONS = [
+  "BTCUSDT",
+  "ETHUSDT",
+  "SOLUSDT",
+  "BNBUSDT",
+  "XRPUSDT",
+  "ADAUSDT",
+  "DOGEUSDT",
+  "LINKUSDT"
+]

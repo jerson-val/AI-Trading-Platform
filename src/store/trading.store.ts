@@ -1,20 +1,30 @@
-import { create } from 'zustand'
+import { create } from "zustand";
+import { Candle } from "../types/trading/candle";
 
-interface TradingState {
-  selectedSymbol: string
-  selectedTimeframe: string
+interface TradingStore {
+  symbol: string;
 
-  setSymbol: (symbol: string) => void
-  setTimeframe: (timeframe: string) => void
+  timeframe: string;
+
+  candles: Candle[];
+
+  setSymbol: (symbol: string) => void;
+
+  setTimeframe: (timeframe: string) => void;
+
+  setCandles: (candles: Candle[]) => void;
 }
 
-export const useTradingStore = create<TradingState>((set) => ({
-  selectedSymbol: 'BTCUSDT',
-  selectedTimeframe: '5m',
+export const useTradingStore = create<TradingStore>((set) => ({
+  symbol: "BTCUSDT",
 
-  setSymbol: (symbol) =>
-    set({ selectedSymbol: symbol }),
+  timeframe: "1h",
 
-  setTimeframe: (timeframe) =>
-    set({ selectedTimeframe: timeframe }),
-}))
+  candles: [],
+
+  setSymbol: (symbol) => set({ symbol }),
+
+  setTimeframe: (timeframe) => set({ timeframe }),
+
+  setCandles: (candles) => set({ candles }),
+}));

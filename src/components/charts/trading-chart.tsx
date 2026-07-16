@@ -2,13 +2,34 @@
 
 import { useEffect, useRef } from 'react'
 import {
-  createChart,
   ColorType,
+  createChart,
+  IChartApi,
+  ISeriesApi,
 } from 'lightweight-charts'
+import { useTradingStore } from '@/src/store/trading.store'
+import { TIME_FRAMES_OPTIONS } from '@/src/config/trading/timeframes'
 
 export default function TradingChart() {
   const chartContainerRef = useRef<HTMLDivElement>(null)
 
+  const chartRef = useRef<IChartApi | null>(null)
+
+  const candleSeriesRef =
+    useRef<ISeriesApi<'Candlestick'> | null>(null)
+
+  const candles = useTradingStore((state) => state.candles)
+
+  const symbol = useTradingStore((state) => state.symbol)
+
+  const timeframe = useTradingStore((state) => state.timeframe)
+
+  const setTimeframe =
+    useTradingStore((state) => state.setTimeframe)
+
+  /* ==========================
+     CREATE CHART (ONLY ONCE)
+  ========================== */
   useEffect(() => {
     if (!chartContainerRef.current) return
 
@@ -34,22 +55,10 @@ export default function TradingChart() {
 
     const candleSeries = chart.addCandlestickSeries()
 
-    candleSeries.setData([
-      {
-        time: '2025-01-01',
-        open: 100,
-        high: 110,
-        low: 90,
-        close: 105,
-      },
-      {
-        time: '2025-01-02',
-        open: 105,
-        high: 120,
-        low: 100,
-        close: 115,
-      },
-    ])
+    candleSeries.setData(candles)
+
+    chartRef.current = chart
+    candleSeriesRef.current = candleSeries
 
     const handleResize = () => {
       if (!chartContainerRef.current) return
@@ -64,22 +73,37 @@ export default function TradingChart() {
 
     return () => {
       window.removeEventListener('resize', handleResize)
+
       chart.remove()
     }
   }, [])
+
+  /* ==========================
+     UPDATE CANDLES
+  ========================== */ 
+  useEffect(() => {
+    if (!candleSeriesRef.current) return
+
+    candleSeriesRef.current.setData(candles)
+  }, [candles])
 
   return (
     <div className="flex h-full flex-col rounded-2xl border border-gray-800 bg-[#111827] p-4">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-semibold">
-          BTCUSDT
+          {symbol}
         </h2>
 
         <div className="flex gap-2">
-          {['1m', '5m', '15m', '1H', '4H'].map((tf) => (
+          {TIME_FRAMES_OPTIONS.map((tf) => (
             <button
               key={tf}
-              className="rounded-lg bg-[#1f2937] px-3 py-1 text-sm hover:bg-blue-500"
+              onClick={() => setTimeframe(tf)}
+              className={`rounded-lg px-3 py-1 text-sm transition-colors ${
+                timeframe === tf
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-[#1f2937] hover:bg-blue-500'
+              }`}
             >
               {tf}
             </button>
