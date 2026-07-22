@@ -6,7 +6,13 @@ interface TradingStore {
 
   timeframe: string;
 
+  lastUpdatedCandle: Candle | null;
+
   candles: Candle[];
+
+  isLoadingHistory: boolean;
+
+  setLoadingHistory: (loading: boolean) => void;
 
   setSymbol: (symbol: string) => void;
 
@@ -24,11 +30,22 @@ export const useTradingStore = create<TradingStore>((set) => ({
 
   candles: [],
 
+  isLoadingHistory: false,
+
+  lastUpdatedCandle: null,
+
+  setLoadingHistory: (loading) => set({
+    isLoadingHistory: loading
+  }),
+
   setSymbol: (symbol) => set({ symbol }),
 
   setTimeframe: (timeframe) => set({ timeframe }),
 
-  setCandles: (candles) => set({ candles }),
+  setCandles: (candles) => set({ 
+    candles,
+    lastUpdatedCandle: null
+   }),
 
   updateLastCandle: (candle) =>
   set((state) => {
@@ -53,6 +70,7 @@ export const useTradingStore = create<TradingStore>((set) => ({
 
     return {
       candles,
+      lastUpdatedCandle: candle
     };
   }),
 }));

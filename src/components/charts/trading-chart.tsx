@@ -4,13 +4,18 @@ import { useEffect, useRef } from 'react'
 import {
   ColorType,
   createChart,
+  CrosshairMode,
   IChartApi,
   ISeriesApi,
 } from 'lightweight-charts'
+
 import { useTradingStore } from '@/src/store/trading.store'
 import { TIME_FRAMES_OPTIONS } from '@/src/config/trading/timeframes'
-import SelectCustom from '../ui/select/selectCustom'
 import { SYMBOLS_OPTIONS } from '@/src/config/trading/symbols'
+
+import Select from '../ui/select/Select'
+import ChartCountdown from './chart-countdown'
+import { Clock3 } from 'lucide-react'
 
 export default function TradingChart() {
   const chartContainerRef = useRef<HTMLDivElement>(null)
@@ -20,20 +25,32 @@ export default function TradingChart() {
   const candleSeriesRef =
     useRef<ISeriesApi<'Candlestick'> | null>(null)
 
-  const candles = useTradingStore((state) => state.candles)
+  const candles = useTradingStore((s) => s.candles)
 
-  const symbol = useTradingStore((state) => state.symbol)
+  const lastUpdatedCandle =
+    useTradingStore((s) => s.lastUpdatedCandle)
 
-  const timeframe = useTradingStore((state) => state.timeframe)
+  const symbol = useTradingStore((s) => s.symbol)
 
-  const setSymbol = useTradingStore(state => state.setSymbol);
+  const timeframe =
+    useTradingStore((s) => s.timeframe)
+
+  const setSymbol =
+    useTradingStore((s) => s.setSymbol)
 
   const setTimeframe =
-    useTradingStore((state) => state.setTimeframe)
+    useTradingStore((s) => s.setTimeframe)
 
-  /* ==========================
-     CREATE CHART (ONLY ONCE)
-  ========================== */
+  const candleForCountdown =
+    lastUpdatedCandle ??
+    candles[candles.length - 1];
+
+  /*
+  ==========================
+  CREATE CHART
+  ==========================
+  */
+
   useEffect(() => {
     if (!chartContainerRef.current) return
 
@@ -45,6 +62,7 @@ export default function TradingChart() {
         },
         textColor: '#d1d5db',
       },
+
       grid: {
         vertLines: {
           color: '#1f2937',
@@ -53,18 +71,31 @@ export default function TradingChart() {
           color: '#1f2937',
         },
       },
+
+      crosshair: {
+        mode: CrosshairMode.Normal,
+      },
+
+      localization: {
+        priceFormatter: (price: number) =>
+          price.toFixed(2),
+      },
+
+      handleScroll: true,
+      handleScale: true,
+
       width: chartContainerRef.current.clientWidth,
       height: chartContainerRef.current.clientHeight,
     })
 
-    const candleSeries = chart.addCandlestickSeries()
-
-    candleSeries.setData(candles)
+    const series = chart.addCandlestickSeries({
+      lastValueVisible: true,
+    })
 
     chartRef.current = chart
-    candleSeriesRef.current = candleSeries
+    candleSeriesRef.current = series
 
-    const handleResize = () => {
+    const resize = () => {
       if (!chartContainerRef.current) return
 
       chart.applyOptions({
@@ -73,36 +104,60 @@ export default function TradingChart() {
       })
     }
 
-    window.addEventListener('resize', handleResize)
+    window.addEventListener('resize', resize)
 
     return () => {
-      window.removeEventListener('resize', handleResize)
-
+      window.removeEventListener('resize', resize)
       chart.remove()
     }
   }, [])
 
-  /* ==========================
-     UPDATE CANDLES
-  ========================== */ 
+  /*
+  ==========================
+  LOAD HISTORY
+  ==========================
+  */
+
   useEffect(() => {
     if (!candleSeriesRef.current) return
 
     candleSeriesRef.current.setData(candles)
   }, [candles])
 
+  /*
+  ==========================
+  LIVE UPDATE
+  ==========================
+  */
+
+  useEffect(() => {
+    if (!lastUpdatedCandle) return
+
+    candleSeriesRef.current?.update(lastUpdatedCandle)
+  }, [lastUpdatedCandle])
+
   return (
     <div className="flex h-full flex-col rounded-2xl border border-gray-800 bg-[#111827] p-4">
+
       <div className="mb-4 flex items-center justify-between">
-        <SelectCustom
-            value={symbol}
-            onChange={setSymbol}
-            options={SYMBOLS_OPTIONS}
-            isSearchable
-            className="w-52"
+
+        <Select
+          value={symbol}
+          onChange={setSymbol}
+          options={SYMBOLS_OPTIONS}
+          className="w-52"
+          isSearchable
         />
 
-        <div className="flex gap-2">
+        <div className="flex items-center gap-3">
+
+          {candleForCountdown && (
+                <ChartCountdown
+                    candleTime={Number(lastUpdatedCandle?.time)}
+                    timeframe={timeframe}
+                />
+          )}
+
           {TIME_FRAMES_OPTIONS.map((tf) => (
             <button
               key={tf}
@@ -116,13 +171,16 @@ export default function TradingChart() {
               {tf}
             </button>
           ))}
+
         </div>
+
       </div>
 
       <div
         ref={chartContainerRef}
         className="min-h-0 flex-1"
       />
+
     </div>
   )
 }

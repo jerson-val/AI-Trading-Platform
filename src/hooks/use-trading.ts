@@ -12,6 +12,8 @@ export const useTrading = () => {
   const timeframe = useTradingStore((s) => s.timeframe);
 
   const setCandles = useTradingStore((s) => s.setCandles);
+
+  const setLoadingHistory = useTradingStore((s) => s.setLoadingHistory)
   
   const authStatus = useAuthStore(state => state.authStatus);
 
@@ -20,21 +22,29 @@ export const useTrading = () => {
 
   useEffect(() => {
 
+    setLoadingHistory(true);
+
+    setCandles([]);
+
     if (authStatus !== 'authenticated')return;
 
     showLoader()
 
     const load = async () => {
-      const candles = await getCandles(
-        symbol,
-        timeframe,
-        500
-      );
+       try {
+        const candles = await getCandles(
+          symbol,
+          timeframe,
+          500
+        );
 
-      setCandles(candles);
-
-      hideLoader()
-    };
+        setCandles(candles);
+        setLoadingHistory(false);
+      } finally {
+        hideLoader();
+        setLoadingHistory(false);
+      }
+    } 
 
     load();
   }, [symbol, timeframe, authStatus]);

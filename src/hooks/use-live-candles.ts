@@ -16,15 +16,21 @@ export const useLiveCandles = () => {
 
   const updateLastCandle = useTradingStore(s => s.updateLastCandle);
 
+  const isLoadingHistory = useTradingStore(s => s.isLoadingHistory);
+
   useEffect(() => {
 
     binanceSocket.connect(
       symbol,
       timeframe,
       (kline) => {
+        
+        if (isLoadingHistory)return;
+
         updateLastCandle(
           mapBinanceKline(kline)
         );
+        
       }
     );
 
