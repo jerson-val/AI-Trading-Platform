@@ -9,6 +9,8 @@ import {
 } from 'lightweight-charts'
 import { useTradingStore } from '@/src/store/trading.store'
 import { TIME_FRAMES_OPTIONS } from '@/src/config/trading/timeframes'
+import SelectCustom from '../ui/select/selectCustom'
+import { SYMBOLS_OPTIONS } from '@/src/config/trading/symbols'
 
 export default function TradingChart() {
   const chartContainerRef = useRef<HTMLDivElement>(null)
@@ -23,6 +25,8 @@ export default function TradingChart() {
   const symbol = useTradingStore((state) => state.symbol)
 
   const timeframe = useTradingStore((state) => state.timeframe)
+
+  const setSymbol = useTradingStore(state => state.setSymbol);
 
   const setTimeframe =
     useTradingStore((state) => state.setTimeframe)
@@ -90,9 +94,13 @@ export default function TradingChart() {
   return (
     <div className="flex h-full flex-col rounded-2xl border border-gray-800 bg-[#111827] p-4">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold">
-          {symbol}
-        </h2>
+        <SelectCustom
+            value={symbol}
+            onChange={setSymbol}
+            options={SYMBOLS_OPTIONS}
+            isSearchable
+            className="w-52"
+        />
 
         <div className="flex gap-2">
           {TIME_FRAMES_OPTIONS.map((tf) => (
