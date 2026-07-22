@@ -13,6 +13,8 @@ interface TradingStore {
   setTimeframe: (timeframe: string) => void;
 
   setCandles: (candles: Candle[]) => void;
+
+  updateLastCandle: (candle: Candle) => void;
 }
 
 export const useTradingStore = create<TradingStore>((set) => ({
@@ -27,4 +29,30 @@ export const useTradingStore = create<TradingStore>((set) => ({
   setTimeframe: (timeframe) => set({ timeframe }),
 
   setCandles: (candles) => set({ candles }),
+
+  updateLastCandle: (candle) =>
+  set((state) => {
+
+    const candles = [...state.candles];
+
+    const last =
+      candles[candles.length - 1];
+
+    if (!last) {
+      return {
+        candles: [candle],
+      };
+    }
+
+    if (last.time === candle.time) {
+      candles[candles.length - 1] =
+        candle;
+    } else {
+      candles.push(candle);
+    }
+
+    return {
+      candles,
+    };
+  }),
 }));
