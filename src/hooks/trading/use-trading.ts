@@ -1,10 +1,10 @@
 'use client'
 
 import { useEffect } from "react";
-import { getCandles } from "../services/trading/trading.service";
-import { useTradingStore } from "../store/trading.store";
-import { useAuthStore } from "../store/auth.store";
-import { useLoaderStore } from "../store/loader.store";
+import { getCandles } from "../../services/trading/trading.service";
+import { useTradingStore } from "../../store/trading.store";
+import { useAuthStore } from "../../store/auth.store";
+import { useLoaderStore } from "../../store/loader.store";
 
 export const useTrading = () => {
   const symbol = useTradingStore((s) => s.symbol);

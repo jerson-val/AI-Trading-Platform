@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 
 import { useTradingStore } from '@/src/store/trading.store';
 
-import { binanceSocket } from '../services/trading/binance-websocket.service';
+import { binanceSocket } from '../../services/trading/binance-websocket.service';
 
 import { mapBinanceKline } from '@/src/mappers/candle.mapper';
 
