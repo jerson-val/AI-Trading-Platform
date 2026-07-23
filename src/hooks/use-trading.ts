@@ -24,8 +24,6 @@ export const useTrading = () => {
 
     setLoadingHistory(true);
 
-    setCandles([]);
-
     if (authStatus !== 'authenticated')return;
 
     showLoader()
@@ -39,7 +37,6 @@ export const useTrading = () => {
         );
 
         setCandles(candles);
-        setLoadingHistory(false);
       } finally {
         hideLoader();
         setLoadingHistory(false);

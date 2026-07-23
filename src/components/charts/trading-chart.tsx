@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import {
+  CandlestickSeries,
   ColorType,
   createChart,
   CrosshairMode,
@@ -40,6 +41,9 @@ export default function TradingChart() {
 
   const setTimeframe =
     useTradingStore((s) => s.setTimeframe)
+
+  const isLoadingHistory =
+    useTradingStore((s) => s.isLoadingHistory)
 
   const candleForCountdown =
     lastUpdatedCandle ??
@@ -88,9 +92,12 @@ export default function TradingChart() {
       height: chartContainerRef.current.clientHeight,
     })
 
-    const series = chart.addCandlestickSeries({
-      lastValueVisible: true,
-    })
+    const series = chart.addSeries(
+        CandlestickSeries,
+        {
+            lastValueVisible: true,
+        }
+    );
 
     chartRef.current = chart
     candleSeriesRef.current = series
@@ -119,10 +126,18 @@ export default function TradingChart() {
   */
 
   useEffect(() => {
-    if (!candleSeriesRef.current) return
 
-    candleSeriesRef.current.setData(candles)
-  }, [candles])
+    if (!chartRef.current || 
+        !candleSeriesRef.current ||
+        ! candles) return;
+
+    candleSeriesRef.current.setData(candles);
+
+    chartRef.current.priceScale("right").applyOptions({
+        autoScale: true,
+    });
+
+}, [symbol, timeframe, isLoadingHistory]);
 
   /*
   ==========================

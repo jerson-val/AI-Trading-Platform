@@ -48,29 +48,7 @@ export const useTradingStore = create<TradingStore>((set) => ({
    }),
 
   updateLastCandle: (candle) =>
-  set((state) => {
-
-    const candles = [...state.candles];
-
-    const last =
-      candles[candles.length - 1];
-
-    if (!last) {
-      return {
-        candles: [candle],
-      };
-    }
-
-    if (last.time === candle.time) {
-      candles[candles.length - 1] =
-        candle;
-    } else {
-      candles.push(candle);
-    }
-
-    return {
-      candles,
-      lastUpdatedCandle: candle
-    };
-  }),
+    set({
+        lastUpdatedCandle: candle
+    })
 }));

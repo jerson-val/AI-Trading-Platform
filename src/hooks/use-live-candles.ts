@@ -20,17 +20,17 @@ export const useLiveCandles = () => {
 
   useEffect(() => {
 
+    if (isLoadingHistory) return;
+
     binanceSocket.connect(
       symbol,
       timeframe,
       (kline) => {
-        
-        if (isLoadingHistory)return;
 
         updateLastCandle(
           mapBinanceKline(kline)
         );
-        
+
       }
     );
 
@@ -38,6 +38,6 @@ export const useLiveCandles = () => {
       binanceSocket.disconnect();
     };
 
-  }, [symbol, timeframe]);
+  }, [symbol, timeframe, isLoadingHistory]);
 
 };
