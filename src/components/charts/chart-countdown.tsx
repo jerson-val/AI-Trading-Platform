@@ -1,7 +1,8 @@
 'use client'
 
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useTradingStore } from '@/src/store/trading.store'
-import { Clock3 } from 'lucide-react'
+import { Clock3, Timer } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 interface Props {
@@ -102,31 +103,39 @@ export default function ChartCountdown({
     };
 
     return (
-        <div
-            className="
-                flex
-                items-center
-                gap-2
-                rounded-full
-                border
-                border-slate-700
-                bg-slate-800
-                px-3
-                py-2
-                font-mono
-                text-xs
-                tracking-wide
-                text-slate-200
-                min-w-[78px]
-                justify-center
-            "
-        >
-            <Clock3
-                size={14}
-                className="text-slate-400"
-            />
+         <TooltipProvider>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                <div
+                    className="
+                    flex
+                    items-center
+                    gap-2
+                    rounded-full
+                    border
+                    border-slate-700/50
+                    bg-slate-900/80
+                    px-3
+                    py-2
+                    font-mono
+                    font-semibold
+                    text-xs
+                    tracking-wide
+                    text-slate-200
+                    min-w-[78px]
+                    justify-center
+                    cursor-default
+                    "
+                >
+                    <Timer size={14} className="text-slate-400" />
+                    <span>{remaining}</span>
+                </div>
+                </TooltipTrigger>
 
-            <span>{remaining}</span>
-        </div>
+                <TooltipContent>
+                <p>{remaining} Time remaining until the current candle closes.</p>
+                </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
     )
 }
