@@ -63,26 +63,13 @@ export default function ChartCountdown({
                 return
             }
 
-            const closeTime =
-                candle.time + timeframeSeconds
+            const closeTime = candle.time + timeframeSeconds
 
-            const now =
-                Math.floor(Date.now() / 1000)
+            const now = Math.floor(Date.now() / 1000)
 
-            const remainingSeconds =
-                Math.max(0, closeTime - now)
+            const remainingSeconds = Math.max(0, closeTime - now)
 
-            const minutes =
-                Math.floor(remainingSeconds / 60)
-
-            const seconds =
-                remainingSeconds % 60
-
-            setRemaining(
-                `${minutes}:${seconds
-                    .toString()
-                    .padStart(2, '0')}`
-            )
+            setRemaining(formatRemaining(remainingSeconds));
         }
 
         update()
@@ -92,6 +79,27 @@ export default function ChartCountdown({
         return () => clearInterval(timer)
 
     }, [lastUpdatedCandle, timeframe])
+
+    const formatRemaining = (totalSeconds: number) => {
+
+        const hours = Math.floor(totalSeconds / 3600);
+
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+        const seconds = totalSeconds % 60;
+
+        if (timeframe === '4h' || timeframe === '1d') {
+            return `${hours}:${minutes
+                .toString()
+                .padStart(2, '0')}:${seconds
+                .toString()
+                .padStart(2, '0')}`;
+        }
+
+        return `${minutes}:${seconds
+            .toString()
+            .padStart(2, '0')}`;
+    };
 
     return (
         <div
