@@ -1,15 +1,24 @@
 export class BinanceWebSocketService {
   private socket?: WebSocket;
+  private currentStream?: string;
 
   connect(
     symbol: string,
     interval: string,
     onMessage: (candle: any) => void
   ) {
+    const stream = `${symbol.toLowerCase()}@kline_${interval}`;
+
+    if (
+        this.socket &&
+        this.currentStream === stream
+    ) {
+        return;
+    }
+
     this.disconnect();
 
-    const stream =
-      `${symbol.toLowerCase()}@kline_${interval}`;
+    this.currentStream = stream;
 
     this.socket =
       new WebSocket(
@@ -24,8 +33,19 @@ export class BinanceWebSocketService {
   }
 
   disconnect() {
-    this.socket?.close();
+
+    if (
+        this.socket &&
+        (
+            this.socket.readyState === WebSocket.CONNECTING ||
+            this.socket.readyState === WebSocket.OPEN
+        )
+    ) {
+        this.socket.close();
+    }
+
     this.socket = undefined;
+    this.currentStream = undefined;
   }
 }
 

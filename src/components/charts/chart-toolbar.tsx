@@ -16,7 +16,6 @@ export default function ChartToolbar(){
     const timeframe = useTradingStore((s) => s.timeframe)
     const setTimeframe = useTradingStore((s) => s.setTimeframe)
 
-
     return (
          <div className="mb-4 flex items-center justify-between">
 
@@ -32,7 +31,6 @@ export default function ChartToolbar(){
 
           {candleForCountdown && (
                 <ChartCountdown
-                    candleTime={Number(lastUpdatedCandle?.time)}
                     timeframe={timeframe}
                 />
           )}

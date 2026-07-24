@@ -23,6 +23,8 @@ export const useTrading = () => {
   useEffect(() => {
 
     setLoadingHistory(true);
+    
+    setCandles([]);
 
     if (authStatus !== 'authenticated')return;
 
