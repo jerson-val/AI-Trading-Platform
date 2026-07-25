@@ -26,8 +26,6 @@ export default function TradingChart() {
   const symbol = useTradingStore((s) => s.symbol)
   const timeframe = useTradingStore((s) => s.timeframe)
 
-  
-
   useChartResize(
         chartRef.current,
         chartContainerRef.current
