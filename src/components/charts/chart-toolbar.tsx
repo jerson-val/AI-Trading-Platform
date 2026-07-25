@@ -1,13 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ChevronDown, Check } from 'lucide-react'
-
 import { useTradingStore } from '@/src/store/trading.store'
-
-import { SYMBOLS_OPTIONS } from '@/src/config/trading/symbols'
 import { TIME_FRAMES_OPTIONS } from '@/src/config/trading/timeframes'
-
 import Select from '../ui/select/Select'
 import ChartCountdown from './chart-countdown'
 import { usePinnedTimeframes } from '@/src/hooks/trading/use-pinned-timeframes'
@@ -23,6 +19,8 @@ export default function ChartToolbar() {
     const candles = useTradingStore(s => s.candles)
     const lastUpdatedCandle = useTradingStore(s => s.lastUpdatedCandle)
 
+    const pairs = useTradingStore(s => s.pairs)
+
     const candleForCountdown = lastUpdatedCandle ?? candles.at(-1)
 
     const [open, setOpen] = useState(false)
@@ -36,13 +34,25 @@ export default function ChartToolbar() {
         setTimeframe,
     )
 
+    const options = useMemo(
+        () =>
+            pairs.map(pair => ({
+                value: pair,
+                label: pair.replace(
+                    "USDT",
+                    " / USDT"
+                ),
+            })),
+        [pairs]
+    );
+
     return (
         <div className="mb-4 flex items-center justify-between">
 
             <Select
                 value={symbol}
                 onChange={setSymbol}
-                options={SYMBOLS_OPTIONS}
+                options={options}
                 className="w-52"
                 isSearchable
             />

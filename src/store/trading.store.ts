@@ -10,7 +10,15 @@ interface TradingStore {
 
   candles: Candle[];
 
+  pairs: string[];
+
+  isLoadingPairs: boolean;
+
   isLoadingHistory: boolean;
+
+  setPairs: (pairs: string[]) => void;
+
+  setLoadingPairs: (loading: boolean) => void;
 
   setLoadingHistory: (loading: boolean) => void;
 
@@ -30,9 +38,23 @@ export const useTradingStore = create<TradingStore>((set) => ({
 
   candles: [],
 
+  pairs: [],
+
+  isLoadingPairs: false,
+
   isLoadingHistory: false,
 
   lastUpdatedCandle: null,
+
+  setPairs: (pairs) =>
+    set({
+        pairs,
+    }),
+
+  setLoadingPairs: (loading) =>
+    set({
+        isLoadingPairs: loading,
+  }),
 
   setLoadingHistory: (loading) => set({
     isLoadingHistory: loading

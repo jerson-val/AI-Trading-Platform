@@ -16,3 +16,10 @@ export const getCandles = async (
 
   return response.data;
 };
+
+export const getPairs = async () => {
+
+    const { data } = await api.get<string[]>("/market/pairs");
+
+    return data;
+};
