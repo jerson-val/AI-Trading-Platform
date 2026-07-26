@@ -13,6 +13,7 @@ import { useLoaderStore } from '@/src/store/loader.store'
 import toast from 'react-hot-toast'
 import { mapNotificationSettings } from '@/src/mappers/settings.mapper'
 import { useAuthStore } from '@/src/store/auth.store'
+import { useTradingPairs } from '@/src/hooks/trading/use-trading-pairs'
 
 export default function SettingsPage() {
 
@@ -24,6 +25,8 @@ export default function SettingsPage() {
   const hideLoader = useLoaderStore((state) => state.hide)
 
   const authStatus = useAuthStore(state => state.authStatus);
+
+  useTradingPairs()
 
   useEffect(() => {
 

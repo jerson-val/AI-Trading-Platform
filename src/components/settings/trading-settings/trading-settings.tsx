@@ -3,8 +3,9 @@
 import { LEVERAGE_OPTIONS } from "@/src/config/trading-settings/leverage.config"
 import { useSettingsStore } from "@/src/store/settings.store"
 import { preventInvalidNumberKeys, restoreZeroIfEmpty } from "@/src/utils/numbers/number-input.utils"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import Select from "../../ui/select/Select"
+import { useTradingStore } from "@/src/store/trading.store"
 
 export default function TradingSettings() {
 
@@ -21,6 +22,11 @@ export default function TradingSettings() {
       (state) =>
         state.updateTradingSettings
     )
+
+  const pairs = useTradingStore(s => s.pairs)
+
+  const symbol = useTradingStore(s => s.symbol)
+  const setSymbol = useTradingStore(s => s.setSymbol)
 
   const handlePercentageInput = (
     value: string
@@ -75,23 +81,24 @@ export default function TradingSettings() {
     }
   ]
 
-  const selectFavoritePairsOptions = [
-    {
-      label: 'BTCUSDT',
-      value: 'BTCUSDT'
-    },
-    {
-      label: 'ETHUSDT',
-      value: 'ETHUSDT'
-    }
-  ]
-
   const leverageOptions = LEVERAGE_OPTIONS.map((item) => {
       return {
         value: item,
         label: `1:${item}`
       }
   })
+
+  const options = useMemo(
+          () =>
+              pairs.map(pair => ({
+                  value: pair,
+                  label: pair.replace(
+                      "USDT",
+                      " / USDT"
+                  ),
+              })),
+          [pairs]
+      );
   
 
   return (
@@ -181,13 +188,9 @@ export default function TradingSettings() {
           </label>
 
           <Select
-            onChange={(selected: string) =>
-              updateTradingSettings({
-                preferredPair: selected
-              })
-            }
-            value={settings.tradingSettings.preferredPair}
-            options={selectFavoritePairsOptions}
+            onChange={setSymbol}
+            value={symbol}
+            options={options}
           />
 
         </div>
