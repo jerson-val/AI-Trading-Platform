@@ -18,6 +18,10 @@ interface TradingStore {
 
   isLoadingOlderHistory: boolean;
 
+  hasMoreHistory: boolean;
+
+  setHasMoreHistory: (value: boolean) => void;
+
   setPairs: (pairs: string[]) => void;
 
   setLoadingPairs: (loading: boolean) => void;
@@ -53,6 +57,12 @@ export const useTradingStore = create<TradingStore>((set) => ({
   lastUpdatedCandle: null,
 
   isLoadingOlderHistory: false,
+
+  hasMoreHistory: true,
+
+  setHasMoreHistory: (value) => set({
+        hasMoreHistory: value,
+  }),
 
   setPairs: (pairs) =>
     set({

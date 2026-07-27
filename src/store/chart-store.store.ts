@@ -14,11 +14,29 @@ interface ChartStore {
 
     clearChart: () => void;
 
+    pendingScrollOffset: number;
+
+    setPendingScrollOffset: (value:number)=>void;
+
+    clearPendingScrollOffset: ()=>void;
+
 }
 
 export const useChartStore = create<ChartStore>((set) => ({
     chart: null,
     series: null,
+
+    pendingScrollOffset:0,
+
+    setPendingScrollOffset:(value)=>
+        set({
+            pendingScrollOffset:value
+        }),
+
+    clearPendingScrollOffset:()=>
+        set({
+            pendingScrollOffset:0
+        }),
 
     setChart: (chart, series) => set({
         chart,
