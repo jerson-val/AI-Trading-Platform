@@ -188,8 +188,12 @@ export default function TradingSettings() {
           </label>
 
           <Select
-            onChange={setSymbol}
-            value={symbol}
+            onChange={(selected: string) =>
+              updateTradingSettings({
+                preferredPair: selected
+              })
+            }
+            value={settings.tradingSettings.preferredPair}
             options={options}
           />
 
