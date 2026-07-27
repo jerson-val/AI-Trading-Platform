@@ -1,10 +1,11 @@
 import { useEffect } from "react";
-import { IChartApi } from "lightweight-charts";
+import { useChartStore } from "@/src/store/chart-store.store";
 
 export function useChartResize(
-    chart: IChartApi | null,
     container: HTMLDivElement | null
 ) {
+
+    const chart = useChartStore((s) => s.chart);
 
     useEffect(() => {
 

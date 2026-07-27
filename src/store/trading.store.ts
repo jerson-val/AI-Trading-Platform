@@ -16,11 +16,15 @@ interface TradingStore {
 
   isLoadingHistory: boolean;
 
+  isLoadingOlderHistory: boolean;
+
   setPairs: (pairs: string[]) => void;
 
   setLoadingPairs: (loading: boolean) => void;
 
   setLoadingHistory: (loading: boolean) => void;
+
+  setLoadingOlderHistory: (loading: boolean) => void;
 
   setSymbol: (symbol: string) => void;
 
@@ -29,6 +33,8 @@ interface TradingStore {
   setCandles: (candles: Candle[]) => void;
 
   updateLastCandle: (candle: Candle) => void;
+
+  prependCandles: (candles: Candle[]) => void;
 }
 
 export const useTradingStore = create<TradingStore>((set) => ({
@@ -46,6 +52,8 @@ export const useTradingStore = create<TradingStore>((set) => ({
 
   lastUpdatedCandle: null,
 
+  isLoadingOlderHistory: false,
+
   setPairs: (pairs) =>
     set({
         pairs,
@@ -60,6 +68,10 @@ export const useTradingStore = create<TradingStore>((set) => ({
     isLoadingHistory: loading
   }),
 
+  setLoadingOlderHistory: (loading) => set({
+      isLoadingOlderHistory: loading,
+  }),
+
   setSymbol: (symbol) => set({ symbol }),
 
   setTimeframe: (timeframe) => set({ timeframe }),
@@ -67,7 +79,15 @@ export const useTradingStore = create<TradingStore>((set) => ({
   setCandles: (candles) => set({ 
     candles,
     lastUpdatedCandle: null
-   }),
+  }),
+
+  prependCandles: (olderCandles) =>
+   set((state) => ({
+       candles: [
+           ...olderCandles,
+           ...state.candles,
+       ],
+  })),
 
   updateLastCandle: (candle) =>
     set({

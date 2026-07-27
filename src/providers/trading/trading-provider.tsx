@@ -5,6 +5,7 @@ import { useTrading } from '@/src/hooks/trading/use-trading'
 import { useLiveCandles } from '@/src/hooks/trading/use-live-candles'
 import { useTradingPairs } from '@/src/hooks/trading/use-trading-pairs'
 import { useSymbol } from '@/src/hooks/trading/use-symbol'
+import { useInfiniteHistory } from '@/src/hooks/trading/use-infinite-history'
 
 export default function TradingProvider({
   children,
@@ -15,6 +16,7 @@ export default function TradingProvider({
   useTradingPairs();
   useLiveCandles();
   useTrading();
+  useInfiniteHistory();
 
   return <>{children}</>
 }

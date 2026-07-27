@@ -11,14 +11,13 @@ import { useChartResize } from '@/src/hooks/trading/use-chart-resize'
 import ChartToolbar from './chart-toolbar'
 import { useChartHistory } from '@/src/hooks/trading/use-chart-history'
 import { useChartRealtime } from '@/src/hooks/trading/use-chart-realtime'
+import { useChartStore } from '@/src/store/chart-store.store'
 
 export default function TradingChart() {
   const chartContainerRef = useRef<HTMLDivElement>(null)
 
-  const chartRef = useRef<IChartApi | null>(null)
-
-  const candleSeriesRef =
-    useRef<ISeriesApi<'Candlestick'> | null>(null)
+  const setChart = useChartStore((s) => s.setChart);
+  const clearChart = useChartStore((s) => s.clearChart);
 
   const isLoadingHistory = useTradingStore((s) => s.isLoadingHistory)
   const lastUpdatedCandle = useTradingStore((s) => s.lastUpdatedCandle)
@@ -26,10 +25,7 @@ export default function TradingChart() {
   const symbol = useTradingStore((s) => s.symbol)
   const timeframe = useTradingStore((s) => s.timeframe)
 
-  useChartResize(
-        chartRef.current,
-        chartContainerRef.current
-    );
+  useChartResize(chartContainerRef.current);
 
   /*
   ==========================
@@ -48,19 +44,19 @@ export default function TradingChart() {
         chartContainerRef.current
     );
 
-    chartRef.current = chart;
-    candleSeriesRef.current = series;
+    setChart(chart, series);
 
-    return () => chart.remove();
+    return () => {
+      clearChart()
+      chart.remove()
+    };
 
   }, []);
 
 
-  useChartRealtime(candleSeriesRef, lastUpdatedCandle)
+  useChartRealtime( lastUpdatedCandle)
 
   useChartHistory(
-    candleSeriesRef,
-    chartRef,
     candles,
     symbol,
     timeframe,
