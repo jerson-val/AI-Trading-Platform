@@ -32,7 +32,7 @@ interface TradingStore {
 }
 
 export const useTradingStore = create<TradingStore>((set) => ({
-  symbol: "BTCUSDT",
+  symbol: "",
 
   timeframe: "30m",
 

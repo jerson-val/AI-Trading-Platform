@@ -5,16 +5,11 @@ import { getCandles } from "../../services/trading/trading.service";
 import { useTradingStore } from "../../store/trading.store";
 import { useAuthStore } from "../../store/auth.store";
 import { useLoaderStore } from "../../store/loader.store";
+import { getPreferredSymbol } from "@/src/services/settings/settings.service";
 
-export const useTrading = () => {
+export const useSymbol = () => {
+  const setSymbol = useTradingStore((s) => s.setSymbol);
   const symbol = useTradingStore((s) => s.symbol);
-
-  const timeframe = useTradingStore((s) => s.timeframe);
-
-  const setCandles = useTradingStore((s) => s.setCandles);
-
-  const setLoadingHistory = useTradingStore((s) => s.setLoadingHistory)
-  
   const authStatus = useAuthStore(state => state.authStatus);
 
   const showLoader = useLoaderStore((state) => state.show)
@@ -22,31 +17,20 @@ export const useTrading = () => {
 
   useEffect(() => {
 
-    if(!symbol) return;
-
-    setLoadingHistory(true);
-    
-    setCandles([]);
-
-    if (authStatus !== 'authenticated')return;
+    if (authStatus !== 'authenticated' || symbol )return;
 
     showLoader()
 
     const load = async () => {
        try {
-        const candles = await getCandles(
-          symbol,
-          timeframe,
-          500
-        );
+        const response = await getPreferredSymbol();
 
-        setCandles(candles);
+        setSymbol(response.preferredPair);
       } finally {
         hideLoader();
-        setLoadingHistory(false);
       }
     } 
 
     load();
-  }, [symbol, timeframe, authStatus]);
+  }, [authStatus]);
 };

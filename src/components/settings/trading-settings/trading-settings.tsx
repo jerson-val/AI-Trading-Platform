@@ -9,6 +9,8 @@ import { useTradingStore } from "@/src/store/trading.store"
 
 export default function TradingSettings() {
 
+  const setSymbol = useTradingStore((s) => s.setSymbol);
+
   const [riskError, setRiskError] =
     useState('')
 
@@ -23,10 +25,14 @@ export default function TradingSettings() {
         state.updateTradingSettings
     )
 
-  const pairs = useTradingStore(s => s.pairs)
+  const hanldeUpdatePreferredPair = (value: string) => {
+    setSymbol('');
+    updateTradingSettings({
+      preferredPair: value
+    });
+  }
 
-  const symbol = useTradingStore(s => s.symbol)
-  const setSymbol = useTradingStore(s => s.setSymbol)
+  const pairs = useTradingStore(s => s.pairs)
 
   const handlePercentageInput = (
     value: string
@@ -188,11 +194,7 @@ export default function TradingSettings() {
           </label>
 
           <Select
-            onChange={(selected: string) =>
-              updateTradingSettings({
-                preferredPair: selected
-              })
-            }
+            onChange={(selected: string) => hanldeUpdatePreferredPair(selected)}
             value={settings.tradingSettings.preferredPair}
             options={options}
           />

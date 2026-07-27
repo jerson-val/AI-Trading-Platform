@@ -20,7 +20,7 @@ export const useLiveCandles = () => {
 
   useEffect(() => {
 
-    if (isLoadingHistory) return;
+    if (isLoadingHistory || !symbol) return;
 
     binanceSocket.connect(
       symbol,
