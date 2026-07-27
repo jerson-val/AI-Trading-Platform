@@ -5,7 +5,7 @@ import { selectStyles } from "@/src/app/select.styles";
 
 export interface SelectOption<T> {
   value: T;
-  label: string;
+  label: React.ReactNode;
 }
 
 interface SelectProps<T> {

@@ -7,6 +7,7 @@ import { TIME_FRAMES_OPTIONS } from '@/src/config/trading/timeframes'
 import Select from '../ui/select/Select'
 import ChartCountdown from './chart-countdown'
 import { usePinnedTimeframes } from '@/src/hooks/trading/use-pinned-timeframes'
+import CryptoIcon from '../trading/crypto-icon'
 
 export default function ChartToolbar() {
 
@@ -38,10 +39,12 @@ export default function ChartToolbar() {
         () =>
             pairs.map(pair => ({
                 value: pair,
-                label: pair.replace(
-                    "USDT",
-                    " / USDT"
-                ),
+                label: (
+                  <div className="flex items-center gap-2">
+                      <CryptoIcon symbol={pair} />
+                      {pair.replace("USDT"," / USDT")}
+                  </div>
+              ),
             })),
         [pairs]
     );

@@ -6,6 +6,7 @@ import { preventInvalidNumberKeys, restoreZeroIfEmpty } from "@/src/utils/number
 import { useMemo, useState } from "react"
 import Select from "../../ui/select/Select"
 import { useTradingStore } from "@/src/store/trading.store"
+import CryptoIcon from "../../trading/crypto-icon"
 
 export default function TradingSettings() {
 
@@ -98,9 +99,11 @@ export default function TradingSettings() {
           () =>
               pairs.map(pair => ({
                   value: pair,
-                  label: pair.replace(
-                      "USDT",
-                      " / USDT"
+                  label: (
+                      <div className="flex items-center gap-2">
+                          <CryptoIcon symbol={pair} />
+                          {pair.replace("USDT"," / USDT")}
+                      </div>
                   ),
               })),
           [pairs]
