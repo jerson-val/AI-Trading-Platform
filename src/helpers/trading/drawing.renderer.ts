@@ -1,7 +1,7 @@
 import { IChartApi, ISeriesApi } from "lightweight-charts";
 import { Drawing, PreviewDrawing } from "@/src/types/trading/drawing";
-import { renderTrendLine } from "./drawing/render-trend-line";
 import { renderPreviewTrendLine } from "./drawing/render-preview-trend-line";
+import { toolManager } from "./tools/tool-manager";
 
 export function renderDrawings(
     canvas: HTMLCanvasElement,
@@ -25,20 +25,16 @@ export function renderDrawings(
 
     drawings.forEach(drawing => {
 
-        switch (drawing.type) {
+        const tool = toolManager.getToolByDrawing(drawing);
 
-            case "trendline":
+        if (!tool) return;
 
-                renderTrendLine(
-                    ctx,
-                    chart,
-                    series,
-                    drawing,
-                );
-
-                break;
-
-        }
+        tool.draw(
+            ctx,
+            drawing,
+            chart,
+            series,
+        );
 
     });
 
