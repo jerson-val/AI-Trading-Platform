@@ -1,5 +1,7 @@
+import { UTCTimestamp } from "lightweight-charts";
+
 export interface ChartPoint {
-    time: number;
+    time: UTCTimestamp;
     price: number;
 }
 

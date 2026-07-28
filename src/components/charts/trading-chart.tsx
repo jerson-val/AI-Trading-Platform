@@ -11,6 +11,8 @@ import ChartToolbar from './chart-toolbar'
 import DrawingCanvas from './drawing-canvas'
 import { useDrawingRenderer } from '@/src/hooks/trading/drawing/use-drawing-renderer'
 import { useDrawingCanvas } from '@/src/hooks/trading/drawing/use-drawing-canvas'
+import { useDrawingStore } from '@/src/store/drawing.store'
+import { useDrawingInteraction } from '@/src/hooks/trading/drawing/use-drawing-interaction'
 
 export default function TradingChart() {
   const chartContainerRef = useRef<HTMLDivElement>(null)
@@ -24,6 +26,14 @@ export default function TradingChart() {
   const candles = useTradingStore((s) => s.candles)
   const symbol = useTradingStore((s) => s.symbol)
   const timeframe = useTradingStore((s) => s.timeframe)
+
+  const setMode = useDrawingStore( s=>s.setMode );
+
+    useEffect(()=>{
+
+        setMode("trendline");
+
+    },[]);
 
   /*
   ==========================
@@ -66,6 +76,8 @@ export default function TradingChart() {
   useDrawingCanvas( chartContainerRef, canvasRef );
 
   useDrawingRenderer(canvasRef);
+
+  useDrawingInteraction(canvasRef);
 
     return (
 
