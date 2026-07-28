@@ -1,14 +1,14 @@
 import { IChartApi, ISeriesApi } from "lightweight-charts";
-
 import { Drawing, PreviewDrawing } from "@/src/types/trading/drawing";
-import { chartToScreen } from "@/src/helpers/trading/chart-to-screen.helper";
+import { renderTrendLine } from "./drawing/render-trend-line";
+import { renderPreviewTrendLine } from "./drawing/render-preview-trend-line";
 
 export function renderDrawings(
     canvas: HTMLCanvasElement,
     chart: IChartApi,
     series: ISeriesApi<"Candlestick">,
     drawings: Drawing[],
-    previewDrawing: PreviewDrawing,
+    previewDrawing: PreviewDrawing | null,
 ) {
 
     const ctx = canvas.getContext("2d");
@@ -23,101 +23,41 @@ export function renderDrawings(
         canvas.height,
     );
 
-    drawings.forEach(drawDrawing);
-
-    if (previewDrawing) {
-
-        switch (previewDrawing.type) {
-            case "trendline":
-                drawPreviewTrendLine(previewDrawing);
-                break;
-        }
-    }
-
-    function drawPreviewTrendLine(
-        drawing: Extract<PreviewDrawing, { type: "trendline" }>
-    ) {
-
-        const start = chartToScreen(
-            chart,
-            series,
-            drawing.start.time,
-            drawing.start.price,
-        );
-
-        if (!start || !ctx)
-            return;
-
-        ctx.beginPath();
-
-        ctx.moveTo(
-            start.x,
-            start.y,
-        );
-
-        ctx.lineTo(
-            drawing.endScreen.x,
-            drawing.endScreen.y,
-        );
-
-        ctx.strokeStyle = drawing.color;
-
-        ctx.lineWidth = drawing.width;
-
-        ctx.stroke();
-
-    }
-
-    function drawDrawing(drawing: Drawing) {
+    drawings.forEach(drawing => {
 
         switch (drawing.type) {
 
             case "trendline":
-                drawTrendLine(drawing);
+
+                renderTrendLine(
+                    ctx,
+                    chart,
+                    series,
+                    drawing,
+                );
+
                 break;
 
-            case "rectangle":
-                // drawRectangle(drawing);
-                break;
         }
 
-    }
+    });
 
-    function drawTrendLine(drawing: Extract<Drawing, { type: "trendline" }>) {
+    if (previewDrawing) {
 
-        const start = chartToScreen(
-            chart,
-            series,
-            drawing.start.time,
-            drawing.start.price,
-        );
+        switch (previewDrawing.type) {
 
-        const end = chartToScreen(
-            chart,
-            series,
-            drawing.end.time,
-            drawing.end.price,
-        );
+            case "trendline":
 
-        if (!start || !end || !ctx)
-            return;
+                renderPreviewTrendLine(
+                    ctx,
+                    chart,
+                    series,
+                    previewDrawing,
+                );
 
-        ctx.beginPath();
+                break;
 
-        ctx.moveTo(
-            start.x,
-            start.y,
-        );
-
-        ctx.lineTo(
-            end.x,
-            end.y,
-        );
-
-        ctx.strokeStyle = drawing.color;
-        ctx.lineWidth = drawing.width;
-
-        ctx.stroke();
+        }
 
     }
 

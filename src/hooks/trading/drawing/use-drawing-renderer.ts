@@ -1,10 +1,12 @@
 import { RefObject, useEffect } from "react";
+
 import { useChartStore } from "@/src/store/chart-store.store";
 import { useDrawingStore } from "@/src/store/drawing.store";
+
 import { renderDrawings } from "@/src/helpers/trading/drawing.renderer";
 
 export function useDrawingRenderer(
-    canvasRef: RefObject<HTMLCanvasElement | null>
+    canvasRef: RefObject<HTMLCanvasElement | null>,
 ) {
 
     const chart = useChartStore(s => s.chart);
@@ -13,35 +15,38 @@ export function useDrawingRenderer(
     useEffect(() => {
 
         if (!canvasRef.current
-            || !series
-            || !chart
-        )
-            return;
+            || ! chart
+            || ! series
+        ) return;
 
-        let animationId = 0;
+        const redraw = () => {
 
-        const render = () => {
+            if (!canvasRef.current) return;
 
             renderDrawings(
-                canvasRef.current!,
+                canvasRef.current,
                 chart,
                 series,
                 useDrawingStore.getState().drawings,
                 useDrawingStore.getState().previewDrawing,
             );
 
-            animationId =
-                requestAnimationFrame(render);
-
         };
 
-        render();
+        // Initial render
+        redraw();
 
-        return () =>
-            cancelAnimationFrame(animationId);
+        const unsubscribe = useDrawingStore.subscribe(redraw);
 
-    }, [
-        chart,
-        series,
-    ]);
+        chart.timeScale().subscribeVisibleLogicalRangeChange(redraw);
+        chart.subscribeCrosshairMove(redraw);
+
+        return () => {
+
+            chart.timeScale().unsubscribeVisibleLogicalRangeChange(redraw);
+            chart.unsubscribeCrosshairMove(redraw);
+            unsubscribe;
+        };
+
+    }, [ chart, series]);
 }
