@@ -14,19 +14,15 @@ interface DrawingStore {
 
     mode: DrawingMode;
 
-    setDrawings(
-        drawings: Drawing[]
-    ): void;
+    previewDrawing: Drawing | null;
 
+    setPreviewDrawing( drawing: Drawing | null ): void;
 
-    setMode(
-        mode: DrawingMode
-    ): void;
+    setDrawings( drawings: Drawing[] ): void;
 
+    setMode( mode: DrawingMode ): void;
 
-    addDrawing(
-        drawing: Drawing
-    ): void;
+    addDrawing( drawing: Drawing): void;
 
 }
 
@@ -38,6 +34,11 @@ create<DrawingStore>((set)=>({
 
     mode: "none",
 
+    previewDrawing: null,
+
+    setPreviewDrawing: (drawing)=> set({
+        previewDrawing: drawing
+    }),
 
     setDrawings: (drawings)=>
         set({

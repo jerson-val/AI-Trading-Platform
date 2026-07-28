@@ -1,7 +1,6 @@
 import { IChartApi, ISeriesApi } from "lightweight-charts";
 
 import { Drawing } from "@/src/types/trading/drawing";
-
 import { chartToScreen } from "@/src/helpers/trading/chart-to-screen.helper";
 
 export function renderDrawings(
@@ -9,10 +8,10 @@ export function renderDrawings(
     chart: IChartApi,
     series: ISeriesApi<"Candlestick">,
     drawings: Drawing[],
+    previewDrawing: Drawing | null,
 ) {
 
-    const ctx =
-        canvas.getContext("2d");
+    const ctx = canvas.getContext("2d");
 
     if (!ctx)
         return;
@@ -24,28 +23,44 @@ export function renderDrawings(
         canvas.height,
     );
 
-    drawings.forEach(drawing => {
+    drawings.forEach(drawDrawing);
 
-        if (drawing.type !== "trendline")
-            return;
+    if (previewDrawing) {
+        drawDrawing(previewDrawing);
+    }
 
-        const start =
-            chartToScreen(
-                chart,
-                series,
-                drawing.start.time,
-                drawing.start.price,
-            );
+    function drawDrawing(drawing: Drawing) {
 
-        const end =
-            chartToScreen(
-                chart,
-                series,
-                drawing.end.time,
-                drawing.end.price,
-            );
+        switch (drawing.type) {
 
-        if (!start || !end)
+            case "trendline":
+                drawTrendLine(drawing);
+                break;
+
+            case "rectangle":
+                // drawRectangle(drawing);
+                break;
+        }
+
+    }
+
+    function drawTrendLine(drawing: Extract<Drawing, { type: "trendline" }>) {
+
+        const start = chartToScreen(
+            chart,
+            series,
+            drawing.start.time,
+            drawing.start.price,
+        );
+
+        const end = chartToScreen(
+            chart,
+            series,
+            drawing.end.time,
+            drawing.end.price,
+        );
+
+        if (!start || !end || !ctx)
             return;
 
         ctx.beginPath();
@@ -60,14 +75,11 @@ export function renderDrawings(
             end.y,
         );
 
-        ctx.strokeStyle =
-            drawing.color;
-
-        ctx.lineWidth =
-            drawing.width;
+        ctx.strokeStyle = drawing.color;
+        ctx.lineWidth = drawing.width;
 
         ctx.stroke();
 
-    });
+    }
 
 }

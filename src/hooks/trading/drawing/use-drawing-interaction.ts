@@ -15,6 +15,7 @@ export function useDrawingInteraction(
     const addDrawing = useDrawingStore( s=>s.addDrawing );
     const chart = useChartStore( s=>s.chart );
     const series = useChartStore( s=>s.series );
+    const setPreviewDrawing = useDrawingStore( s => s.setPreviewDrawing );
 
     useEffect(()=>{
 
@@ -44,23 +45,62 @@ export function useDrawingInteraction(
                 return;
             }
 
-            addDrawing({
+            const preview = useDrawingStore.getState().previewDrawing;
 
-                id: crypto.randomUUID(),
-                type: "trendline",
-                start: startPoint.current,
-                end: point,
-                color: "#3b82f6",
-                width: 2,
-            });
+            if (preview) addDrawing(preview); 
+
+            setPreviewDrawing(null);
 
             startPoint.current = null;
         };
 
+        const move = (
+            event: MouseEvent
+        ) => {
+
+            if (mode !== "trendline")
+                return;
+
+            if (!startPoint.current)
+                return;
+
+            const rect =
+                canvas.getBoundingClientRect();
+
+            const point =
+                screenToChart(
+                    chart,
+                    series,
+                    event.clientX - rect.left,
+                    event.clientY - rect.top,
+                );
+
+            if (!point)
+                return;
+
+            setPreviewDrawing({
+
+                id: "preview",
+
+                type: "trendline",
+
+                start: startPoint.current,
+
+                end: point,
+
+                color: "#3b82f6",
+
+                width: 2,
+
+            });
+
+        };
+
         canvas.addEventListener( "click", click );
+        canvas.addEventListener( "mousemove", move );
 
         return ()=>{
-
+            canvas.removeEventListener( "mousemove", move );
             canvas.removeEventListener( "click", click );
         };
 

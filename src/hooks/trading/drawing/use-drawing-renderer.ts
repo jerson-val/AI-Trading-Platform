@@ -1,7 +1,6 @@
 import { RefObject, useEffect } from "react";
 import { useChartStore } from "@/src/store/chart-store.store";
 import { useDrawingStore } from "@/src/store/drawing.store";
-import { useTradingStore } from "@/src/store/trading.store";
 import { renderDrawings } from "@/src/helpers/trading/drawing.renderer";
 
 export function useDrawingRenderer(
@@ -9,34 +8,40 @@ export function useDrawingRenderer(
 ) {
 
     const chart = useChartStore(s => s.chart);
-    const candles = useTradingStore(s => s.candles);
-    const lastUpdatedCandle = useTradingStore(s => s.lastUpdatedCandle);
     const series = useChartStore(s => s.series);
-    const drawings = useDrawingStore(s => s.drawings);
 
     useEffect(() => {
 
-        if (!canvasRef.current)
+        if (!canvasRef.current
+            || !series
+            || !chart
+        )
             return;
 
-        if (!chart)
-            return;
+        let animationId = 0;
 
-        if (!series)
-            return;
+        const render = () => {
 
-        renderDrawings(
-            canvasRef.current,
-            chart,
-            series,
-            drawings,
-        );
+            renderDrawings(
+                canvasRef.current!,
+                chart,
+                series,
+                useDrawingStore.getState().drawings,
+                useDrawingStore.getState().previewDrawing,
+            );
+
+            animationId =
+                requestAnimationFrame(render);
+
+        };
+
+        render();
+
+        return () =>
+            cancelAnimationFrame(animationId);
 
     }, [
         chart,
         series,
-        drawings,
-        candles,
-        lastUpdatedCandle,
     ]);
 }
