@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-import { Drawing } from "@/src/types/trading/drawing";
+import { Drawing, PreviewDrawing } from "@/src/types/trading/drawing";
 
 
 type DrawingMode =
@@ -14,9 +14,9 @@ interface DrawingStore {
 
     mode: DrawingMode;
 
-    previewDrawing: Drawing | null;
+    previewDrawing: PreviewDrawing;
 
-    setPreviewDrawing( drawing: Drawing | null ): void;
+    setPreviewDrawing( drawing: PreviewDrawing ): void;
 
     setDrawings( drawings: Drawing[] ): void;
 

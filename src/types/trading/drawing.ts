@@ -30,3 +30,22 @@ export interface RectangleDrawing {
 export type Drawing =
     | TrendLineDrawing
     | RectangleDrawing;
+
+export interface PreviewTrendLine {
+    type: "trendline";
+
+    start: ChartPoint;
+
+    endScreen: {
+        x: number;
+        y: number;
+    };
+
+    color: string;
+
+    width: number;
+}
+
+export type PreviewDrawing =
+    | PreviewTrendLine
+    | null;

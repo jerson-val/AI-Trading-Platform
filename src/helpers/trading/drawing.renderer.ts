@@ -1,6 +1,6 @@
 import { IChartApi, ISeriesApi } from "lightweight-charts";
 
-import { Drawing } from "@/src/types/trading/drawing";
+import { Drawing, PreviewDrawing } from "@/src/types/trading/drawing";
 import { chartToScreen } from "@/src/helpers/trading/chart-to-screen.helper";
 
 export function renderDrawings(
@@ -8,7 +8,7 @@ export function renderDrawings(
     chart: IChartApi,
     series: ISeriesApi<"Candlestick">,
     drawings: Drawing[],
-    previewDrawing: Drawing | null,
+    previewDrawing: PreviewDrawing,
 ) {
 
     const ctx = canvas.getContext("2d");
@@ -26,7 +26,46 @@ export function renderDrawings(
     drawings.forEach(drawDrawing);
 
     if (previewDrawing) {
-        drawDrawing(previewDrawing);
+
+        switch (previewDrawing.type) {
+            case "trendline":
+                drawPreviewTrendLine(previewDrawing);
+                break;
+        }
+    }
+
+    function drawPreviewTrendLine(
+        drawing: Extract<PreviewDrawing, { type: "trendline" }>
+    ) {
+
+        const start = chartToScreen(
+            chart,
+            series,
+            drawing.start.time,
+            drawing.start.price,
+        );
+
+        if (!start || !ctx)
+            return;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            start.x,
+            start.y,
+        );
+
+        ctx.lineTo(
+            drawing.endScreen.x,
+            drawing.endScreen.y,
+        );
+
+        ctx.strokeStyle = drawing.color;
+
+        ctx.lineWidth = drawing.width;
+
+        ctx.stroke();
+
     }
 
     function drawDrawing(drawing: Drawing) {

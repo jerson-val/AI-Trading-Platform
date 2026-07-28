@@ -45,9 +45,14 @@ export function useDrawingInteraction(
                 return;
             }
 
-            const preview = useDrawingStore.getState().previewDrawing;
-
-            if (preview) addDrawing(preview); 
+            addDrawing({
+                id: crypto.randomUUID(),
+                type: "trendline",
+                start: startPoint.current,
+                end: point,
+                color: "#3b82f6",
+                width: 2,
+            });
 
             setPreviewDrawing(null);
 
@@ -58,40 +63,20 @@ export function useDrawingInteraction(
             event: MouseEvent
         ) => {
 
-            if (mode !== "trendline")
-                return;
+            if (mode !== "trendline" || !startPoint.current) return;
 
-            if (!startPoint.current)
-                return;
+            const rect = canvas.getBoundingClientRect();
 
-            const rect =
-                canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
 
-            const point =
-                screenToChart(
-                    chart,
-                    series,
-                    event.clientX - rect.left,
-                    event.clientY - rect.top,
-                );
-
-            if (!point)
-                return;
+            const y = event.clientY - rect.top;
 
             setPreviewDrawing({
-
-                id: "preview",
-
                 type: "trendline",
-
                 start: startPoint.current,
-
-                end: point,
-
+                endScreen: { x, y },
                 color: "#3b82f6",
-
                 width: 2,
-
             });
 
         };
