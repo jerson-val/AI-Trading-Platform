@@ -1,6 +1,7 @@
 import { Drawing } from "@/src/types/trading/drawing";
 import { rectangleTool, trendLineTool } from "./tool.factory";
 import { DrawingTool } from "@/src/types/trading/drawing-tool";
+import { DrawingMode } from "@/src/store/drawing.store";
 
 export class ToolManager {
 
@@ -18,6 +19,16 @@ export class ToolManager {
                 return null;
 
         }
+
+    }
+
+    cancel(mode: DrawingMode) {
+
+        const tool = this.getTool(mode);
+
+        if (!tool) return;
+
+        tool.onCancel();
 
     }
 

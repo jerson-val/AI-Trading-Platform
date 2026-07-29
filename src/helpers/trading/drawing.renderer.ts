@@ -2,6 +2,7 @@ import { IChartApi, ISeriesApi } from "lightweight-charts";
 import { Drawing, PreviewDrawing } from "@/src/types/trading/drawing";
 import { renderPreviewTrendLine } from "./drawing/render-preview-trend-line";
 import { toolManager } from "./tools/tool-manager";
+import { renderPreviewRectangle } from "./drawing/render-preview-rectangle";
 
 export function renderDrawings(
     canvas: HTMLCanvasElement,
@@ -51,6 +52,17 @@ export function renderDrawings(
                     previewDrawing,
                 );
 
+                break;
+
+            case "rectangle":
+
+                renderPreviewRectangle(
+                    ctx,
+                    chart,
+                    series,
+                    previewDrawing
+                )
+                
                 break;
 
         }

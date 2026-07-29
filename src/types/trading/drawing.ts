@@ -25,6 +25,7 @@ export interface RectangleDrawing {
     end: ChartPoint;
     color: string;
     fillColor: string;
+    borderWidth: number;
 }
 
 export type Drawing =
@@ -46,6 +47,19 @@ export interface PreviewTrendLine {
     width: number;
 }
 
+export interface PreviewRectangle {
+    type: "rectangle";
+    start: ChartPoint;
+    endScreen: {
+        x: number;
+        y: number;
+    };
+    color: string;
+    fillColor: string;
+    borderWidth: number;
+}
+
 export type PreviewDrawing =
     | PreviewTrendLine
+    | PreviewRectangle
     | null;

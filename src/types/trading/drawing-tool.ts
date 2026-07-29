@@ -24,6 +24,6 @@ export interface DrawingTool {
         series: ISeriesApi<"Candlestick">
     ): void;
 
-    onCancel?(): void;
+    onCancel(): void;
 
 }
