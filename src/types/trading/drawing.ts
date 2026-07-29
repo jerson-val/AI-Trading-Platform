@@ -7,13 +7,32 @@ export interface ChartPoint {
 
 export type DrawingType =
     | "trendline"
-    | "rectangle";
+    | "rectangle"
+    | "horizontal"
+    | "arrow";
 
 export interface TrendLineDrawing {
     id: string;
     type: "trendline";
     start: ChartPoint;
     end: ChartPoint;
+    color: string;
+    width: number;
+}
+
+export interface ArrowDrawing {
+    id: string;
+    type: "arrow";
+    start: ChartPoint;
+    end: ChartPoint;
+    color: string;
+    width: number;
+}
+
+export interface HorizontalLineDrawing {
+    id: string;
+    type: "horizontal";
+    price: number;
     color: string;
     width: number;
 }
@@ -30,7 +49,9 @@ export interface RectangleDrawing {
 
 export type Drawing =
     | TrendLineDrawing
-    | RectangleDrawing;
+    | RectangleDrawing
+    | HorizontalLineDrawing
+    | ArrowDrawing;
 
 export interface PreviewTrendLine {
     type: "trendline";
@@ -59,7 +80,19 @@ export interface PreviewRectangle {
     borderWidth: number;
 }
 
+export interface PreviewArrow {
+    type: "arrow";
+    start: ChartPoint;
+    endScreen: {
+        x: number;
+        y: number;
+    };
+    color: string;
+    width: number;
+}
+
 export type PreviewDrawing =
     | PreviewTrendLine
     | PreviewRectangle
+    | PreviewArrow
     | null;

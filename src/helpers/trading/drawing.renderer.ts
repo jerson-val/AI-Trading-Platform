@@ -3,6 +3,7 @@ import { Drawing, PreviewDrawing } from "@/src/types/trading/drawing";
 import { renderPreviewTrendLine } from "./drawing/render-preview-trend-line";
 import { toolManager } from "./tools/tool-manager";
 import { renderPreviewRectangle } from "./drawing/render-preview-rectangle";
+import { renderPreviewArrow } from "./drawing/render-preview-arrow";
 
 export function renderDrawings(
     canvas: HTMLCanvasElement,
@@ -54,6 +55,17 @@ export function renderDrawings(
 
                 break;
 
+            case "arrow":
+
+                renderPreviewArrow(
+                    ctx,
+                    chart,
+                    series,
+                    previewDrawing
+                )
+
+                break;
+
             case "rectangle":
 
                 renderPreviewRectangle(
@@ -62,7 +74,7 @@ export function renderDrawings(
                     series,
                     previewDrawing
                 )
-                
+
                 break;
 
         }

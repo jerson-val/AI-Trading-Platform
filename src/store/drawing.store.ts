@@ -8,7 +8,7 @@ export type DrawingMode =
     | "trendline"
     | "rectangle"
     | "horizontal"
-    | "ray"
+    | "arrow"
     | "text";
 
 

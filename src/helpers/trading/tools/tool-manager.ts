@@ -1,5 +1,5 @@
 import { Drawing } from "@/src/types/trading/drawing";
-import { rectangleTool, trendLineTool } from "./tool.factory";
+import { arrowTool, horizontalLineTool, rectangleTool, trendLineTool } from "./tool.factory";
 import { DrawingTool } from "@/src/types/trading/drawing-tool";
 import { DrawingMode } from "@/src/store/drawing.store";
 
@@ -14,6 +14,12 @@ export class ToolManager {
             
             case "rectangle":
                 return rectangleTool;
+
+            case "horizontal":
+                return horizontalLineTool;
+            
+            case "arrow":
+                return arrowTool;
 
             default:
                 return null;
@@ -43,6 +49,12 @@ export class ToolManager {
 
             case "rectangle":
                 return rectangleTool;
+            
+            case "horizontal":
+                return horizontalLineTool;
+
+            case "arrow":
+                return arrowTool;
 
             default:
                 return null;

@@ -39,9 +39,9 @@ const TOOLS = [
     },
 
     {
-        id: "ray",
+        id: "arrow",
         icon: ArrowUpRight,
-        label: "Ray",
+        label: "Arrow",
     },
 
     {
