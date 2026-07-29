@@ -82,4 +82,30 @@ export function useDrawingInteraction(
         mode
     ]);
 
+    useEffect(() => {
+
+        const key = (
+            event: KeyboardEvent
+        ) => {
+
+            if (event.key !== "Escape")
+                return;
+
+            trendLineTool.onCancel();
+
+        };
+
+        window.addEventListener(
+            "keydown",
+            key,
+        );
+
+        return () =>
+            window.removeEventListener(
+                "keydown",
+                key,
+            );
+
+    }, []);
+
 }

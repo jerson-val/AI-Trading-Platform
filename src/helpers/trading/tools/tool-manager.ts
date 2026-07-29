@@ -1,5 +1,5 @@
 import { Drawing } from "@/src/types/trading/drawing";
-import { trendLineTool } from "./tool.factory";
+import { rectangleTool, trendLineTool } from "./tool.factory";
 import { DrawingTool } from "@/src/types/trading/drawing-tool";
 
 export class ToolManager {
@@ -10,6 +10,9 @@ export class ToolManager {
 
             case "trendline":
                 return trendLineTool;
+            
+            case "rectangle":
+                return rectangleTool;
 
             default:
                 return null;
@@ -26,6 +29,9 @@ export class ToolManager {
 
             case "trendline":
                 return trendLineTool;
+
+            case "rectangle":
+                return rectangleTool;
 
             default:
                 return null;

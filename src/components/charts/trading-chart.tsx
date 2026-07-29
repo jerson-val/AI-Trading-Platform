@@ -13,6 +13,7 @@ import { useDrawingRenderer } from '@/src/hooks/trading/drawing/use-drawing-rend
 import { useDrawingCanvas } from '@/src/hooks/trading/drawing/use-drawing-canvas'
 import { useDrawingStore } from '@/src/store/drawing.store'
 import { useDrawingInteraction } from '@/src/hooks/trading/drawing/use-drawing-interaction'
+import DrawingToolbar from './drawing-toolbar'
 
 export default function TradingChart() {
   const chartContainerRef = useRef<HTMLDivElement>(null)
@@ -26,14 +27,6 @@ export default function TradingChart() {
   const candles = useTradingStore((s) => s.candles)
   const symbol = useTradingStore((s) => s.symbol)
   const timeframe = useTradingStore((s) => s.timeframe)
-
-  const setMode = useDrawingStore( s=>s.setMode );
-
-    useEffect(()=>{
-
-        setMode("trendline");
-
-    },[]);
 
   /*
   ==========================
@@ -85,16 +78,22 @@ export default function TradingChart() {
 
             <ChartToolbar />
 
-            <div className="relative min-h-0 flex-1">
+            <div className="flex min-h-0 flex-1">
 
-                <div
-                    ref={chartContainerRef}
-                    className="absolute inset-0"
-                />
+                <DrawingToolbar />
 
-                <DrawingCanvas
-                    ref={canvasRef}
-                />
+                <div className="relative ml-3 min-h-0 flex-1">
+
+                    <div
+                        ref={chartContainerRef}
+                        className="absolute inset-0"
+                    />
+
+                    <DrawingCanvas
+                        ref={canvasRef}
+                    />
+
+                </div>
 
             </div>
 

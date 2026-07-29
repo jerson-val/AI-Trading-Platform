@@ -144,4 +144,9 @@ export class TrendLineTool implements DrawingTool {
 
     }
 
+    onCancel(): void {
+        this.startPoint = null;
+        useDrawingStore.getState().setPreviewDrawing(null);
+    }
+
 }

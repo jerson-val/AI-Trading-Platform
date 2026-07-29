@@ -3,9 +3,13 @@ import { create } from "zustand";
 import { Drawing, PreviewDrawing } from "@/src/types/trading/drawing";
 
 
-type DrawingMode =
+export type DrawingMode =
     | "none"
-    | "trendline";
+    | "trendline"
+    | "rectangle"
+    | "horizontal"
+    | "ray"
+    | "text";
 
 
 interface DrawingStore {

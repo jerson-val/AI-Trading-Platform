@@ -1,5 +1,6 @@
 'use client'
 
+import { useDrawingStore } from '@/src/store/drawing.store';
 import { forwardRef } from 'react'
 
 const DrawingCanvas = forwardRef<
@@ -7,16 +8,23 @@ const DrawingCanvas = forwardRef<
     React.CanvasHTMLAttributes<HTMLCanvasElement>
 >((props, ref) => {
 
+    const mode =useDrawingStore( s => s.mode );
+
     return (
 
         <canvas
             ref={ref}
             {...props}
-            className="
+            className={`
                 absolute
                 inset-0
                 z-10
-            "
+                ${
+                    mode === "none"
+                        ? "pointer-events-none"
+                        : "pointer-events-auto"
+                }
+            `}
         />
 
     )
