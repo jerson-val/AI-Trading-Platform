@@ -1,15 +1,6 @@
 import { create } from "zustand";
 
-import { ChartPoint, Drawing, PreviewDrawing } from "@/src/types/trading/drawing";
-
-
-export type DrawingMode =
-    | "none"
-    | "trendline"
-    | "rectangle"
-    | "horizontal"
-    | "arrow"
-    | "text";
+import { ChartPoint, Drawing, PreviewDrawing, DrawingMode } from "@/src/types/trading/drawing";
 
 interface TextEditorState {
 
@@ -36,6 +27,27 @@ interface DrawingStore {
 
     textEditor: TextEditorState | null;
 
+    selectedDrawingId: string | null;
+
+    hoveredDrawingId: string | null;
+
+    draggingDrawingId: string | null;
+    
+    dragStartScreen: { x: number; y: number } | null;
+    
+    setDraggingDrawingId: ( id: string | null ) => void;
+
+    setDragStartScreen( 
+        point: {
+            x: number;
+            y: number;
+        } | null,
+    ): void;
+
+    setHoveredDrawingId: ( id: string | null ) => void;
+
+    setSelectedDrawingId: ( id: string | null ) => void;
+
     setTextEditor: ( editor: TextEditorState | null ) => void;
 
     setPreviewDrawing( drawing: PreviewDrawing ): void;
@@ -59,6 +71,26 @@ create<DrawingStore>((set)=>({
     mode: "none",
 
     previewDrawing: null,
+
+    selectedDrawingId: null,
+
+    hoveredDrawingId: null,
+
+    dragStartScreen: null,
+
+    draggingDrawingId: null,
+
+    setHoveredDrawingId: id => set({
+        hoveredDrawingId: id,
+    }),
+
+    setDraggingDrawingId: draggingDrawingId => set({ draggingDrawingId }),
+
+    setDragStartScreen: dragStartScreen => set({ dragStartScreen }),
+
+    setSelectedDrawingId: id => set({
+        selectedDrawingId: id,
+    }),
 
     setTextEditor: (text) => set({
         textEditor: text

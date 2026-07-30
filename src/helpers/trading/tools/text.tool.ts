@@ -87,4 +87,8 @@ export class TextTool implements DrawingTool {
 
     }
 
+    hitTest(x: number, y: number, drawing: TextDrawing, chart: IChartApi, series: ISeriesApi<"Candlestick">): boolean {
+            return false
+        }
+
 }

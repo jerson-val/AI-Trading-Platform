@@ -115,3 +115,11 @@ export type PreviewDrawing =
     | PreviewArrow
     | PreviewText
     | null;
+
+export type DrawingMode =
+    | "none"
+    | "trendline"
+    | "rectangle"
+    | "horizontal"
+    | "arrow"
+    | "text";

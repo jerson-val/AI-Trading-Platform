@@ -4,32 +4,95 @@ import {
 } from "lightweight-charts";
 
 import { DrawingTool } from "@/src/types/trading/drawing-tool";
-import { screenToChart } from "../screen-to-chart.helper";
+
+import {
+    ChartPoint,
+    Drawing,
+    TrendLineDrawing,
+} from "@/src/types/trading/drawing";
+
 import { useDrawingStore } from "@/src/store/drawing.store";
-import { Drawing, TrendLineDrawing } from "@/src/types/trading/drawing";
+
+import { screenToChart } from "../screen-to-chart.helper";
 import { chartToScreen } from "../chart-to-screen.helper";
 
 export class TrendLineTool implements DrawingTool {
 
-    private startPoint: any = null;
+    private startPoint: ChartPoint | null = null;
 
-    onClick(
+    private getChartPoint(
         x: number,
         y: number,
         chart: IChartApi,
-        series: ISeriesApi<"Candlestick">
+        series: ISeriesApi<"Candlestick">,
     ) {
 
-        const point = screenToChart(
+        return screenToChart(
             chart,
             series,
             x,
             y,
         );
 
-        if (!point) return;
+    }
 
-        // First click
+    private reset() {
+
+        this.startPoint = null;
+
+        useDrawingStore
+            .getState()
+            .setPreviewDrawing(null);
+
+    }
+
+    private finishDrawing(
+        end: ChartPoint,
+    ) {
+
+        if (!this.startPoint)
+            return;
+
+        useDrawingStore
+            .getState()
+            .addDrawing({
+
+                id: crypto.randomUUID(),
+
+                type: "trendline",
+
+                start: this.startPoint,
+
+                end,
+
+                color: "#3b82f6",
+
+                width: 2,
+
+            });
+
+        this.reset();
+
+    }
+
+    onClick(
+        x: number,
+        y: number,
+        chart: IChartApi,
+        series: ISeriesApi<"Candlestick">,
+    ) {
+
+        const point =
+            this.getChartPoint(
+                x,
+                y,
+                chart,
+                series,
+            );
+
+        if (!point)
+            return;
+
         if (!this.startPoint) {
 
             this.startPoint = point;
@@ -38,26 +101,33 @@ export class TrendLineTool implements DrawingTool {
 
         }
 
-        // Second click
-        const drawing = {
+        this.finishDrawing(point);
 
-            id: crypto.randomUUID(),
+    }
 
-            type: "trendline" as const,
+    onMouseDown(
+        x: number,
+        y: number,
+        chart: IChartApi,
+        series: ISeriesApi<"Candlestick">,
+    ) {
 
-            start: this.startPoint,
+        const point =
+            this.getChartPoint(
+                x,
+                y,
+                chart,
+                series,
+            );
 
-            end: point,
+        if (!point)
+            return;
 
-            color: "#3b82f6",
+        if (!this.startPoint) {
 
-            width: 2,
+            this.startPoint = point;
 
-        };
-
-        useDrawingStore.getState().addDrawing(drawing);
-        useDrawingStore.getState().setPreviewDrawing(null);
-        this.startPoint = null;
+        }
 
     }
 
@@ -65,61 +135,85 @@ export class TrendLineTool implements DrawingTool {
         x: number,
         y: number,
         chart: IChartApi,
-        series: ISeriesApi<"Candlestick">
+        series: ISeriesApi<"Candlestick">,
     ) {
 
         if (!this.startPoint)
             return;
 
-        const point = screenToChart(
-            chart,
-            series,
-            x,
-            y,
-        );
+        useDrawingStore
+            .getState()
+            .setPreviewDrawing({
 
-        if (!point) return;
+                type: "trendline",
 
-        useDrawingStore.getState().setPreviewDrawing({
+                start: this.startPoint,
 
-            type: "trendline",
+                endScreen: {
+                    x,
+                    y,
+                },
 
-            start: this.startPoint,
+                color: "#3b82f6",
 
-            endScreen: {
+                width: 2,
+
+            });
+
+    }
+
+    onMouseUp(
+        x: number,
+        y: number,
+        chart: IChartApi,
+        series: ISeriesApi<"Candlestick">,
+    ) {
+
+        if (!this.startPoint)
+            return;
+
+        const point =
+            this.getChartPoint(
                 x,
                 y,
-            },
+                chart,
+                series,
+            );
 
-            color: "#3b82f6",
+        if (!point)
+            return;
 
-            width: 2,
+        this.finishDrawing(point);
 
-        });
     }
 
     draw(
         ctx: CanvasRenderingContext2D,
         drawing: Drawing,
         chart: IChartApi,
-        series: ISeriesApi<"Candlestick">
+        series: ISeriesApi<"Candlestick">,
+        selected: boolean,
+        hovered: boolean,
     ) {
 
-        const trendLine = drawing as TrendLineDrawing;
+        const trendLine =
+            drawing as TrendLineDrawing;
 
-        const start = chartToScreen(
-            chart,
-            series,
-            trendLine.start.time,
-            trendLine.start.price,
-        );
+        const start =
+            chartToScreen(
+                chart,
+                series,
+                trendLine.start.time,
+                trendLine.start.price,
+            );
 
-        const end = chartToScreen(
-            chart,
-            series,
-            trendLine.end.time,
-            trendLine.end.price,
-        );
+        const end =
+            chartToScreen(
+                chart,
+                series,
+                trendLine.end.time,
+                trendLine.end.price,
+            );
 
         if (!start || !end)
             return;
@@ -136,17 +230,126 @@ export class TrendLineTool implements DrawingTool {
             end.y,
         );
 
+        ctx.strokeStyle =
+            hovered
+                ? "#60a5fa"
+                : trendLine.color;
+
+        ctx.lineWidth =
+            hovered
+                ? trendLine.width + 1
+                : trendLine.width;
+
+        ctx.stroke();
+
+        if (!selected)
+            return;
+
+        ctx.fillStyle = "#ffffff";
+
         ctx.strokeStyle = trendLine.color;
 
-        ctx.lineWidth = trendLine.width;
+        ctx.lineWidth = 2;
+
+        this.drawHandle(
+            ctx,
+            start,
+        );
+
+        this.drawHandle(
+            ctx,
+            end,
+        );
+
+    }
+
+    private drawHandle(
+        ctx: CanvasRenderingContext2D,
+        point: {
+            x: number;
+            y: number;
+        },
+    ) {
+
+        ctx.beginPath();
+
+        ctx.arc(
+            point.x,
+            point.y,
+            5,
+            0,
+            Math.PI * 2,
+        );
+
+        ctx.fill();
 
         ctx.stroke();
 
     }
 
-    onCancel(): void {
-        this.startPoint = null;
-        useDrawingStore.getState().setPreviewDrawing(null);
+    onCancel() {
+
+        this.reset();
+
+    }
+
+    hitTest(
+        x: number,
+        y: number,
+        drawing: TrendLineDrawing,
+        chart: IChartApi,
+        series: ISeriesApi<"Candlestick">,
+    ) {
+
+        const start =
+            chartToScreen(
+                chart,
+                series,
+                drawing.start.time,
+                drawing.start.price,
+            );
+
+        const end =
+            chartToScreen(
+                chart,
+                series,
+                drawing.end.time,
+                drawing.end.price,
+            );
+
+        if (!start || !end)
+            return false;
+
+        const dx =
+            end.x - start.x;
+
+        const dy =
+            end.y - start.y;
+
+        const length =
+            Math.sqrt(
+                dx * dx +
+                dy * dy,
+            );
+
+        if (length === 0)
+            return false;
+
+        const distance =
+            Math.abs(
+
+                dy * x -
+
+                dx * y +
+
+                end.x * start.y -
+
+                end.y * start.x
+
+            ) / length;
+
+        return distance <= 6;
+
     }
 
 }

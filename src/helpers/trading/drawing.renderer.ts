@@ -4,6 +4,7 @@ import { renderPreviewTrendLine } from "./drawing/render-preview-trend-line";
 import { toolManager } from "./tools/tool-manager";
 import { renderPreviewRectangle } from "./drawing/render-preview-rectangle";
 import { renderPreviewArrow } from "./drawing/render-preview-arrow";
+import { useDrawingStore } from "@/src/store/drawing.store";
 
 export function renderDrawings(
     canvas: HTMLCanvasElement,
@@ -12,6 +13,8 @@ export function renderDrawings(
     drawings: Drawing[],
     previewDrawing: PreviewDrawing | null,
 ) {
+
+    const store = useDrawingStore.getState();
 
     const ctx = canvas.getContext("2d");
 
@@ -31,11 +34,17 @@ export function renderDrawings(
 
         if (!tool) return;
 
+        const selected = store.selectedDrawingId === drawing.id;
+
+        const hovered = store.hoveredDrawingId === drawing.id;
+
         tool.draw(
             ctx,
             drawing,
             chart,
             series,
+            selected,
+            hovered
         );
 
     });

@@ -1,7 +1,7 @@
 import { Drawing } from "@/src/types/trading/drawing";
 import { arrowTool, horizontalLineTool, rectangleTool, textTool, trendLineTool } from "./tool.factory";
 import { DrawingTool } from "@/src/types/trading/drawing-tool";
-import { DrawingMode } from "@/src/store/drawing.store";
+import { DrawingMode } from "@/src/types/trading/drawing";
 
 export class ToolManager {
 

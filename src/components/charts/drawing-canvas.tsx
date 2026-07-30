@@ -19,11 +19,6 @@ const DrawingCanvas = forwardRef<
                 absolute
                 inset-0
                 z-10
-                ${
-                    mode === "none"
-                        ? "pointer-events-none"
-                        : "pointer-events-auto"
-                }
             `}
         />
 
