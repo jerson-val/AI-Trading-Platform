@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useChartStore } from "@/src/store/chart-store.store";
 
 import { Candle } from "@/src/types/trading/candle";
+import { useDrawingStore } from "@/src/store/drawing.store";
 
 export function useChartHistory(
     candles: Candle[],
@@ -15,10 +16,14 @@ export function useChartHistory(
 
     const series = useChartStore(s => s.series);
 
+    const setMode = useDrawingStore(s => s.setMode)
+
     useEffect(() => {
 
         if (!chart || !series)
             return;
+
+        setMode('none');
 
         const previousRange = chart.timeScale().getVisibleLogicalRange();
 
