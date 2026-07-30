@@ -47,10 +47,20 @@ export interface RectangleDrawing {
     borderWidth: number;
 }
 
+export interface TextDrawing {
+    id: string;
+    type: "text";
+    point: ChartPoint;
+    text: string;
+    color: string;
+    fontSize: number;
+}
+
 export type Drawing =
     | TrendLineDrawing
     | RectangleDrawing
     | HorizontalLineDrawing
+    | TextDrawing
     | ArrowDrawing;
 
 export interface PreviewTrendLine {
@@ -91,8 +101,17 @@ export interface PreviewArrow {
     width: number;
 }
 
+export interface PreviewText {
+    type: "text";
+    point: ChartPoint;
+    text: string;
+    color: string;
+    fontSize: number;
+}
+
 export type PreviewDrawing =
     | PreviewTrendLine
     | PreviewRectangle
     | PreviewArrow
+    | PreviewText
     | null;

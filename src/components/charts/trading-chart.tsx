@@ -14,6 +14,7 @@ import { useDrawingCanvas } from '@/src/hooks/trading/drawing/use-drawing-canvas
 import { useDrawingStore } from '@/src/store/drawing.store'
 import { useDrawingInteraction } from '@/src/hooks/trading/drawing/use-drawing-interaction'
 import DrawingToolbar from './drawing-toolbar'
+import TextEditorOverlay from '../trading/text-editor-overlay'
 
 export default function TradingChart() {
   const chartContainerRef = useRef<HTMLDivElement>(null)
@@ -92,6 +93,8 @@ export default function TradingChart() {
                     <DrawingCanvas
                         ref={canvasRef}
                     />
+
+                    <TextEditorOverlay />
 
                 </div>
 

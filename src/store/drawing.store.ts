@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-import { Drawing, PreviewDrawing } from "@/src/types/trading/drawing";
+import { ChartPoint, Drawing, PreviewDrawing } from "@/src/types/trading/drawing";
 
 
 export type DrawingMode =
@@ -11,6 +11,20 @@ export type DrawingMode =
     | "arrow"
     | "text";
 
+interface TextEditorState {
+
+    point: ChartPoint;
+
+    screen: {
+
+        x: number;
+
+        y: number;
+
+    };
+
+}
+
 
 interface DrawingStore {
 
@@ -19,6 +33,10 @@ interface DrawingStore {
     mode: DrawingMode;
 
     previewDrawing: PreviewDrawing;
+
+    textEditor: TextEditorState | null;
+
+    setTextEditor: ( editor: TextEditorState | null ) => void;
 
     setPreviewDrawing( drawing: PreviewDrawing ): void;
 
@@ -36,9 +54,15 @@ create<DrawingStore>((set)=>({
 
     drawings: [],
 
+    textEditor: null,
+
     mode: "none",
 
     previewDrawing: null,
+
+    setTextEditor: (text) => set({
+        textEditor: text
+    }),
 
     setPreviewDrawing: (drawing)=> set({
         previewDrawing: drawing
