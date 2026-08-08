@@ -70,7 +70,7 @@ export default function TradingChart() {
 
   useDrawingRenderer(canvasRef);
 
-  useDrawingInteraction(canvasRef);
+  useDrawingInteraction(chartContainerRef, canvasRef);
 
     return (
 

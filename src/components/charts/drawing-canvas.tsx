@@ -8,7 +8,7 @@ const DrawingCanvas = forwardRef<
     React.CanvasHTMLAttributes<HTMLCanvasElement>
 >((props, ref) => {
 
-    const mode =useDrawingStore( s => s.mode );
+    const mode = useDrawingStore( s => s.mode );
 
     return (
 
@@ -19,6 +19,7 @@ const DrawingCanvas = forwardRef<
                 absolute
                 inset-0
                 z-10
+                pointer-events-none
             `}
         />
 

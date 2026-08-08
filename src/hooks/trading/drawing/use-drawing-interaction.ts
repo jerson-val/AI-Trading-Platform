@@ -6,34 +6,47 @@ import { useDrawingStore } from "@/src/store/drawing.store";
 import { toolManager } from "@/src/helpers/trading/tools/tool-manager";
 
 export function useDrawingInteraction(
-    canvasRef: RefObject<HTMLCanvasElement | null>
+    containerRef: RefObject<HTMLDivElement | null>,
+    canvasRef: RefObject<HTMLCanvasElement | null>,
 ) {
 
-    const mode = useDrawingStore(s => s.mode);
+    const mode = useDrawingStore(
+        (s) => s.mode
+    );
 
-    const chart = useChartStore(s => s.chart);
+    const chart = useChartStore(
+        (s) => s.chart
+    );
 
-    const series = useChartStore(s => s.series);
+    const series = useChartStore(
+        (s) => s.series
+    );
 
     useEffect(() => {
 
-        const canvas = canvasRef.current;
+        const container =
+            containerRef.current;
+
+        const canvas =
+            canvasRef.current;
 
         if (
+            !container ||
             !canvas ||
             !chart ||
             !series
-        ) return;
+        ) {
+            return;
+        }
 
         const getMousePosition = (
             event: MouseEvent,
         ) => {
 
             const rect =
-                canvas.getBoundingClientRect();
+                container.getBoundingClientRect();
 
             return {
-
                 x:
                     event.clientX -
                     rect.left,
@@ -41,7 +54,6 @@ export function useDrawingInteraction(
                 y:
                     event.clientY -
                     rect.top,
-
             };
 
         };
@@ -70,9 +82,9 @@ export function useDrawingInteraction(
                         drawing,
                     );
 
-                if (
-                    !tool
-                ) continue;
+                if (!tool) {
+                    continue;
+                }
 
                 if (
                     tool.hitTest(
@@ -83,16 +95,17 @@ export function useDrawingInteraction(
                         series,
                     )
                 ) {
-
                     return drawing;
-
                 }
 
             }
 
             return null;
-
         };
+
+        // ----------------------------------------
+        // CLICK
+        // ----------------------------------------
 
         const handleClick = (
             event: MouseEvent,
@@ -101,10 +114,7 @@ export function useDrawingInteraction(
             const {
                 x,
                 y,
-            } =
-                getMousePosition(
-                    event,
-                );
+            } = getMousePosition(event);
 
             const drawing =
                 hitTestDrawings(
@@ -121,7 +131,6 @@ export function useDrawingInteraction(
                     );
 
                 return;
-
             }
 
             useDrawingStore
@@ -141,8 +150,11 @@ export function useDrawingInteraction(
                 chart,
                 series,
             );
-
         };
+
+        // ----------------------------------------
+        // MOUSE DOWN
+        // ----------------------------------------
 
         const handleMouseDown = (
             event: MouseEvent,
@@ -151,10 +163,7 @@ export function useDrawingInteraction(
             const {
                 x,
                 y,
-            } =
-                getMousePosition(
-                    event,
-                );
+            } = getMousePosition(event);
 
             const drawing =
                 hitTestDrawings(
@@ -176,14 +185,11 @@ export function useDrawingInteraction(
                 );
 
                 store.setDragStartScreen({
-
                     x,
                     y,
-
                 });
 
                 return;
-
             }
 
             useDrawingStore
@@ -203,8 +209,11 @@ export function useDrawingInteraction(
                 chart,
                 series,
             );
-
         };
+
+        // ----------------------------------------
+        // MOUSE UP
+        // ----------------------------------------
 
         const handleMouseUp = (
             event: MouseEvent,
@@ -213,6 +222,11 @@ export function useDrawingInteraction(
             const store =
                 useDrawingStore.getState();
 
+            /*
+             * If we are dragging an existing
+             * drawing, don't pass the event
+             * to the active drawing tool.
+             */
             if (
                 store.draggingDrawingId
             ) {
@@ -226,16 +240,12 @@ export function useDrawingInteraction(
                 );
 
                 return;
-
             }
 
             const {
                 x,
                 y,
-            } =
-                getMousePosition(
-                    event,
-                );
+            } = getMousePosition(event);
 
             const tool =
                 toolManager.getTool(
@@ -248,8 +258,11 @@ export function useDrawingInteraction(
                 chart,
                 series,
             );
-
         };
+
+        // ----------------------------------------
+        // MOUSE MOVE
+        // ----------------------------------------
 
         const handleMouseMove = (
             event: MouseEvent,
@@ -258,10 +271,7 @@ export function useDrawingInteraction(
             const {
                 x,
                 y,
-            } =
-                getMousePosition(
-                    event,
-                );
+            } = getMousePosition(event);
 
             const drawing =
                 hitTestDrawings(
@@ -273,18 +283,22 @@ export function useDrawingInteraction(
                 useDrawingStore.getState();
 
             store.setHoveredDrawingId(
-
                 drawing
                     ? drawing.id
                     : null,
-
             );
 
-            canvas.style.cursor =
-
+            /*
+             * IMPORTANT:
+             *
+             * We do NOT change pointer-events.
+             *
+             * The chart remains interactive.
+             */
+            container.style.cursor =
                 drawing
                     ? "pointer"
-                    : "crosshair";
+                    : "default";
 
             const tool =
                 toolManager.getTool(
@@ -297,47 +311,46 @@ export function useDrawingInteraction(
                 chart,
                 series,
             );
-
         };
 
-        canvas.addEventListener(
+        container.addEventListener(
             "click",
             handleClick,
         );
 
-        canvas.addEventListener(
+        container.addEventListener(
             "mousedown",
             handleMouseDown,
         );
 
-        canvas.addEventListener(
+        container.addEventListener(
             "mouseup",
             handleMouseUp,
         );
 
-        canvas.addEventListener(
+        container.addEventListener(
             "mousemove",
             handleMouseMove,
         );
 
         return () => {
 
-            canvas.removeEventListener(
+            container.removeEventListener(
                 "click",
                 handleClick,
             );
 
-            canvas.removeEventListener(
+            container.removeEventListener(
                 "mousedown",
                 handleMouseDown,
             );
 
-            canvas.removeEventListener(
+            container.removeEventListener(
                 "mouseup",
                 handleMouseUp,
             );
 
-            canvas.removeEventListener(
+            container.removeEventListener(
                 "mousemove",
                 handleMouseMove,
             );
@@ -345,11 +358,16 @@ export function useDrawingInteraction(
         };
 
     }, [
+        containerRef,
         canvasRef,
         chart,
         series,
         mode,
     ]);
+
+    // ----------------------------------------
+    // ESCAPE
+    // ----------------------------------------
 
     useEffect(() => {
 
@@ -359,12 +377,13 @@ export function useDrawingInteraction(
 
             if (
                 event.key !== "Escape"
-            ) return;
+            ) {
+                return;
+            }
 
             toolManager.cancel(
                 mode,
             );
-
         };
 
         window.addEventListener(
@@ -372,11 +391,14 @@ export function useDrawingInteraction(
             handleKeyDown,
         );
 
-        return () =>
+        return () => {
+
             window.removeEventListener(
                 "keydown",
                 handleKeyDown,
             );
+
+        };
 
     }, [mode]);
 
