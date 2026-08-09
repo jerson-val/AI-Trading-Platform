@@ -20,6 +20,25 @@ export class TrendLineTool implements DrawingTool {
 
     private startPoint: ChartPoint | null = null;
 
+    private movingDrawingId: string | null = null;
+
+    private moveStartX = 0;
+    private moveStartY = 0;
+
+    private originalStartScreen: {
+        x: number;
+        y: number;
+    } | null = null;
+
+    private originalEndScreen: {
+        x: number;
+        y: number;
+    } | null = null;
+
+    // --------------------------------------------------
+    // Helpers
+    // --------------------------------------------------
+
     private getChartPoint(
         x: number,
         y: number,
@@ -50,8 +69,9 @@ export class TrendLineTool implements DrawingTool {
         end: ChartPoint,
     ) {
 
-        if (!this.startPoint)
+        if (!this.startPoint) {
             return;
+        }
 
         useDrawingStore
             .getState()
@@ -75,6 +95,10 @@ export class TrendLineTool implements DrawingTool {
 
     }
 
+    // --------------------------------------------------
+    // CREATE
+    // --------------------------------------------------
+
     onClick(
         x: number,
         y: number,
@@ -90,20 +114,24 @@ export class TrendLineTool implements DrawingTool {
                 series,
             );
 
-        if (!point)
+        if (!point) {
             return;
+        }
 
         if (!this.startPoint) {
 
             this.startPoint = point;
 
             return;
-
         }
 
         this.finishDrawing(point);
 
     }
+
+    // --------------------------------------------------
+    // MOUSE DOWN
+    // --------------------------------------------------
 
     onMouseDown(
         x: number,
@@ -120,8 +148,9 @@ export class TrendLineTool implements DrawingTool {
                 series,
             );
 
-        if (!point)
+        if (!point) {
             return;
+        }
 
         if (!this.startPoint) {
 
@@ -131,6 +160,10 @@ export class TrendLineTool implements DrawingTool {
 
     }
 
+    // --------------------------------------------------
+    // CREATE PREVIEW
+    // --------------------------------------------------
+
     onMouseMove(
         x: number,
         y: number,
@@ -138,8 +171,9 @@ export class TrendLineTool implements DrawingTool {
         series: ISeriesApi<"Candlestick">,
     ) {
 
-        if (!this.startPoint)
+        if (!this.startPoint) {
             return;
+        }
 
         useDrawingStore
             .getState()
@@ -162,6 +196,10 @@ export class TrendLineTool implements DrawingTool {
 
     }
 
+    // --------------------------------------------------
+    // MOUSE UP - CREATE
+    // --------------------------------------------------
+
     onMouseUp(
         x: number,
         y: number,
@@ -169,8 +207,9 @@ export class TrendLineTool implements DrawingTool {
         series: ISeriesApi<"Candlestick">,
     ) {
 
-        if (!this.startPoint)
+        if (!this.startPoint) {
             return;
+        }
 
         const point =
             this.getChartPoint(
@@ -180,12 +219,262 @@ export class TrendLineTool implements DrawingTool {
                 series,
             );
 
-        if (!point)
+        if (!point) {
             return;
+        }
 
         this.finishDrawing(point);
 
     }
+
+    // --------------------------------------------------
+    // MOVE START
+    // --------------------------------------------------
+
+    onMoveStart(
+        x: number,
+        y: number,
+        drawing: Drawing,
+        chart: IChartApi,
+        series: ISeriesApi<"Candlestick">,
+    ) {
+
+        if (
+            drawing.type !== "trendline"
+        ) {
+            return;
+        }
+
+        const trendLine =
+            drawing as TrendLineDrawing;
+
+        const startScreen =
+            chartToScreen(
+                chart,
+                series,
+                trendLine.start.time,
+                trendLine.start.price,
+            );
+
+        const endScreen =
+            chartToScreen(
+                chart,
+                series,
+                trendLine.end.time,
+                trendLine.end.price,
+            );
+
+        if (
+            !startScreen ||
+            !endScreen
+        ) {
+            return;
+        }
+
+        /*
+        * Store the ORIGINAL drawing position.
+        *
+        * These values must remain unchanged for the
+        * entire drag operation.
+        */
+
+        this.movingDrawingId =
+            trendLine.id;
+
+        this.moveStartX =
+            x;
+
+        this.moveStartY =
+            y;
+
+        this.originalStartScreen = {
+            x: startScreen.x,
+            y: startScreen.y,
+        };
+
+        this.originalEndScreen = {
+            x: endScreen.x,
+            y: endScreen.y,
+        };
+
+    }
+
+    // --------------------------------------------------
+    // MOVE
+    // --------------------------------------------------
+
+    onMove(
+        drawing: Drawing,
+        startX: number,
+        startY: number,
+        currentX: number,
+        currentY: number,
+        chart: IChartApi,
+        series: ISeriesApi<"Candlestick">,
+    ) {
+
+        if (
+            drawing.type !== "trendline"
+        ) {
+            return;
+        }
+
+        const trendLine =
+            drawing as TrendLineDrawing;
+
+        /*
+        * Make sure this is the drawing that started
+        * the current drag.
+        */
+
+        if (
+            this.movingDrawingId !==
+            trendLine.id
+        ) {
+            return;
+        }
+
+        if (
+            !this.originalStartScreen ||
+            !this.originalEndScreen
+        ) {
+            return;
+        }
+
+        /*
+        * ------------------------------------------
+        * Calculate movement from the ORIGINAL
+        * mouse position.
+        * ------------------------------------------
+        */
+
+        const deltaX =
+            currentX - startX;
+
+        const deltaY =
+            currentY - startY;
+
+        /*
+        * ------------------------------------------
+        * Move the ORIGINAL endpoints.
+        *
+        * IMPORTANT:
+        *
+        * We do NOT use the current drawing's
+        * screen position here.
+        * ------------------------------------------
+        */
+
+        const newStartScreen = {
+
+            x:
+                this.originalStartScreen.x +
+                deltaX,
+
+            y:
+                this.originalStartScreen.y +
+                deltaY,
+
+        };
+
+        const newEndScreen = {
+
+            x:
+                this.originalEndScreen.x +
+                deltaX,
+
+            y:
+                this.originalEndScreen.y +
+                deltaY,
+
+        };
+
+        /*
+        * ------------------------------------------
+        * Convert screen coordinates back to
+        * chart coordinates.
+        * ------------------------------------------
+        */
+
+        const newStart =
+            this.getChartPoint(
+                newStartScreen.x,
+                newStartScreen.y,
+                chart,
+                series,
+            );
+
+        const newEnd =
+            this.getChartPoint(
+                newEndScreen.x,
+                newEndScreen.y,
+                chart,
+                series,
+            );
+
+        if (
+            !newStart ||
+            !newEnd
+        ) {
+            return;
+        }
+
+        /*
+        * ------------------------------------------
+        * Create a COMPLETE drawing.
+        * ------------------------------------------
+        */
+
+        const updatedDrawing: TrendLineDrawing = {
+
+            ...trendLine,
+
+            start: newStart,
+
+            end: newEnd,
+
+        };
+
+        useDrawingStore
+            .getState()
+            .updateDrawing(
+                trendLine.id,
+                updatedDrawing,
+            );
+
+    }
+
+    // --------------------------------------------------
+    // MOVE END
+    // --------------------------------------------------
+
+    onMoveEnd(
+        x: number,
+        y: number,
+        drawing: Drawing,
+        chart: IChartApi,
+        series: ISeriesApi<"Candlestick">,
+    ) {
+
+        /*
+        * Clear the temporary drag state.
+        */
+
+        this.movingDrawingId = null;
+
+        this.moveStartX = 0;
+
+        this.moveStartY = 0;
+
+        this.originalStartScreen = null;
+
+        this.originalEndScreen = null;
+
+    }
+
+    // --------------------------------------------------
+    // DRAW
+    // --------------------------------------------------
 
     draw(
         ctx: CanvasRenderingContext2D,
@@ -195,6 +484,12 @@ export class TrendLineTool implements DrawingTool {
         selected: boolean,
         hovered: boolean,
     ) {
+
+        if (
+            drawing.type !== "trendline"
+        ) {
+            return;
+        }
 
         const trendLine =
             drawing as TrendLineDrawing;
@@ -215,8 +510,16 @@ export class TrendLineTool implements DrawingTool {
                 trendLine.end.price,
             );
 
-        if (!start || !end)
+        if (
+            !start ||
+            !end
+        ) {
             return;
+        }
+
+        // ------------------------------------------
+        // Line
+        // ------------------------------------------
 
         ctx.beginPath();
 
@@ -242,12 +545,19 @@ export class TrendLineTool implements DrawingTool {
 
         ctx.stroke();
 
-        if (!selected)
+        // ------------------------------------------
+        // Handles
+        // ------------------------------------------
+
+        if (!selected) {
             return;
+        }
 
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle =
+            "#ffffff";
 
-        ctx.strokeStyle = trendLine.color;
+        ctx.strokeStyle =
+            trendLine.color;
 
         ctx.lineWidth = 2;
 
@@ -262,6 +572,10 @@ export class TrendLineTool implements DrawingTool {
         );
 
     }
+
+    // --------------------------------------------------
+    // HANDLE
+    // --------------------------------------------------
 
     private drawHandle(
         ctx: CanvasRenderingContext2D,
@@ -287,44 +601,67 @@ export class TrendLineTool implements DrawingTool {
 
     }
 
+    // --------------------------------------------------
+    // CANCEL
+    // --------------------------------------------------
+
     onCancel() {
 
         this.reset();
 
     }
 
+    // --------------------------------------------------
+    // HIT TEST
+    // --------------------------------------------------
+
     hitTest(
         x: number,
         y: number,
-        drawing: TrendLineDrawing,
+        drawing: Drawing,
         chart: IChartApi,
         series: ISeriesApi<"Candlestick">,
     ) {
+
+        if (
+            drawing.type !== "trendline"
+        ) {
+            return false;
+        }
+
+        const trendLine =
+            drawing as TrendLineDrawing;
 
         const start =
             chartToScreen(
                 chart,
                 series,
-                drawing.start.time,
-                drawing.start.price,
+                trendLine.start.time,
+                trendLine.start.price,
             );
 
         const end =
             chartToScreen(
                 chart,
                 series,
-                drawing.end.time,
-                drawing.end.price,
+                trendLine.end.time,
+                trendLine.end.price,
             );
 
-        if (!start || !end)
+        if (
+            !start ||
+            !end
+        ) {
             return false;
+        }
 
         const dx =
-            end.x - start.x;
+            end.x -
+            start.x;
 
         const dy =
-            end.y - start.y;
+            end.y -
+            start.y;
 
         const length =
             Math.sqrt(
@@ -332,8 +669,11 @@ export class TrendLineTool implements DrawingTool {
                 dy * dy,
             );
 
-        if (length === 0)
+        if (
+            length === 0
+        ) {
             return false;
+        }
 
         const distance =
             Math.abs(

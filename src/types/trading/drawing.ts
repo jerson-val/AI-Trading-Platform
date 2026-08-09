@@ -123,3 +123,9 @@ export type DrawingMode =
     | "horizontal"
     | "arrow"
     | "text";
+
+export type DrawingInteraction =
+    | "none"
+    | "creating"
+    | "moving"
+    | "resizing";

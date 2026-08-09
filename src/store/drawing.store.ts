@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-import { ChartPoint, Drawing, PreviewDrawing, DrawingMode } from "@/src/types/trading/drawing";
+import { ChartPoint, Drawing, PreviewDrawing, DrawingMode, DrawingInteraction } from "@/src/types/trading/drawing";
 
 interface TextEditorState {
 
@@ -34,6 +34,10 @@ interface DrawingStore {
     draggingDrawingId: string | null;
     
     dragStartScreen: { x: number; y: number } | null;
+
+    drawingInteraction: DrawingInteraction;
+
+    setDrawingInteraction: ( interaction: DrawingInteraction ) => void;
     
     setDraggingDrawingId: ( id: string | null ) => void;
 
@@ -58,6 +62,8 @@ interface DrawingStore {
 
     addDrawing( drawing: Drawing): void;
 
+    updateDrawing: (id: string, drawing: Drawing) => void;
+
 }
 
 
@@ -65,6 +71,8 @@ export const useDrawingStore =
 create<DrawingStore>((set)=>({
 
     drawings: [],
+
+    drawingInteraction: "none",
 
     textEditor: null,
 
@@ -79,6 +87,18 @@ create<DrawingStore>((set)=>({
     dragStartScreen: null,
 
     draggingDrawingId: null,
+
+    updateDrawing: (id, drawing) => set(state => ({
+        drawings: state.drawings.map(item =>
+            item.id === id
+                ? drawing
+                : item
+        ),
+    })),
+
+    setDrawingInteraction: ( interaction: DrawingInteraction ) => set({
+        drawingInteraction: interaction,
+    }),
 
     setHoveredDrawingId: id => set({
         hoveredDrawingId: id,
