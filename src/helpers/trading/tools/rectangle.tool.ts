@@ -5,6 +5,7 @@ import {
 
 import {
     ChartPoint,
+    Drawing,
     RectangleDrawing,
 } from "@/src/types/trading/drawing";
 
@@ -19,11 +20,34 @@ export class RectangleTool implements DrawingTool {
 
     private startPoint: ChartPoint | null = null;
 
+    // --------------------------------------------------
+    // MOVE STATE
+    // --------------------------------------------------
+
+    private movingDrawingId: string | null = null;
+
+    private moveStartX = 0;
+    private moveStartY = 0;
+
+    private originalStartScreen: {
+        x: number;
+        y: number;
+    } | null = null;
+
+    private originalEndScreen: {
+        x: number;
+        y: number;
+    } | null = null;
+
+    // --------------------------------------------------
+    // HELPERS
+    // --------------------------------------------------
+
     private getChartPoint(
         x: number,
         y: number,
         chart: IChartApi,
-        series: ISeriesApi<"Candlestick">
+        series: ISeriesApi<"Candlestick">,
     ) {
 
         return screenToChart(
@@ -49,8 +73,9 @@ export class RectangleTool implements DrawingTool {
         end: ChartPoint,
     ) {
 
-        if (!this.startPoint)
+        if (!this.startPoint) {
             return;
+        }
 
         useDrawingStore
             .getState()
@@ -77,11 +102,15 @@ export class RectangleTool implements DrawingTool {
 
     }
 
+    // --------------------------------------------------
+    // CREATE - CLICK
+    // --------------------------------------------------
+
     onClick(
         x: number,
         y: number,
         chart: IChartApi,
-        series: ISeriesApi<"Candlestick">
+        series: ISeriesApi<"Candlestick">,
     ) {
 
         const point =
@@ -92,8 +121,9 @@ export class RectangleTool implements DrawingTool {
                 series,
             );
 
-        if (!point)
+        if (!point) {
             return;
+        }
 
         if (!this.startPoint) {
 
@@ -106,12 +136,16 @@ export class RectangleTool implements DrawingTool {
         this.finishDrawing(point);
 
     }
+
+    // --------------------------------------------------
+    // CREATE - MOUSE DOWN
+    // --------------------------------------------------
 
     onMouseDown(
         x: number,
         y: number,
         chart: IChartApi,
-        series: ISeriesApi<"Candlestick">
+        series: ISeriesApi<"Candlestick">,
     ) {
 
         const point =
@@ -122,8 +156,9 @@ export class RectangleTool implements DrawingTool {
                 series,
             );
 
-        if (!point)
+        if (!point) {
             return;
+        }
 
         if (!this.startPoint) {
 
@@ -133,38 +168,20 @@ export class RectangleTool implements DrawingTool {
 
     }
 
-    onMouseUp(
-        x: number,
-        y: number,
-        chart: IChartApi,
-        series: ISeriesApi<"Candlestick">
-    ) {
-
-        if (!this.startPoint)
-            return;
-
-        const point =
-            this.getChartPoint(
-                x,
-                y,
-                chart,
-                series,
-            );
-
-        if (!point)
-            return;
-
-        this.finishDrawing(point);
-
-    }
+    // --------------------------------------------------
+    // CREATE - MOUSE MOVE
+    // --------------------------------------------------
 
     onMouseMove(
         x: number,
         y: number,
+        chart: IChartApi,
+        series: ISeriesApi<"Candlestick">,
     ) {
 
-        if (!this.startPoint)
+        if (!this.startPoint) {
             return;
+        }
 
         useDrawingStore
             .getState()
@@ -190,33 +207,334 @@ export class RectangleTool implements DrawingTool {
 
     }
 
+    // --------------------------------------------------
+    // CREATE - MOUSE UP
+    // --------------------------------------------------
+
+    onMouseUp(
+        x: number,
+        y: number,
+        chart: IChartApi,
+        series: ISeriesApi<"Candlestick">,
+    ) {
+
+        if (!this.startPoint) {
+            return;
+        }
+
+        const point =
+            this.getChartPoint(
+                x,
+                y,
+                chart,
+                series,
+            );
+
+        if (!point) {
+            return;
+        }
+
+        this.finishDrawing(point);
+
+    }
+
+    // --------------------------------------------------
+    // MOVE START
+    // --------------------------------------------------
+
+    onMoveStart(
+        x: number,
+        y: number,
+        drawing: Drawing,
+        chart: IChartApi,
+        series: ISeriesApi<"Candlestick">,
+    ) {
+
+        if (
+            drawing.type !== "rectangle"
+        ) {
+            return;
+        }
+
+        const rectangle =
+            drawing as RectangleDrawing;
+
+        // ----------------------------------------------
+        // Convert original corners to screen coordinates
+        // ----------------------------------------------
+
+        const startScreen =
+            chartToScreen(
+                chart,
+                series,
+                rectangle.start.time,
+                rectangle.start.price,
+            );
+
+        const endScreen =
+            chartToScreen(
+                chart,
+                series,
+                rectangle.end.time,
+                rectangle.end.price,
+            );
+
+        if (
+            !startScreen ||
+            !endScreen
+        ) {
+            return;
+        }
+
+        // ----------------------------------------------
+        // Store original drag state
+        // ----------------------------------------------
+
+        this.movingDrawingId =
+            rectangle.id;
+
+        this.moveStartX =
+            x;
+
+        this.moveStartY =
+            y;
+
+        this.originalStartScreen = {
+            x: startScreen.x,
+            y: startScreen.y,
+        };
+
+        this.originalEndScreen = {
+            x: endScreen.x,
+            y: endScreen.y,
+        };
+
+    }
+
+    // --------------------------------------------------
+    // MOVE
+    // --------------------------------------------------
+
+    onMove(
+        drawing: Drawing,
+        startX: number,
+        startY: number,
+        currentX: number,
+        currentY: number,
+        chart: IChartApi,
+        series: ISeriesApi<"Candlestick">,
+    ) {
+
+        if (
+            drawing.type !== "rectangle"
+        ) {
+            return;
+        }
+
+        const rectangle =
+            drawing as RectangleDrawing;
+
+        // ----------------------------------------------
+        // Make sure this is the drawing being dragged
+        // ----------------------------------------------
+
+        if (
+            this.movingDrawingId !==
+            rectangle.id
+        ) {
+            return;
+        }
+
+        if (
+            !this.originalStartScreen ||
+            !this.originalEndScreen
+        ) {
+            return;
+        }
+
+        // ----------------------------------------------
+        // Calculate movement from ORIGINAL mouse position
+        // ----------------------------------------------
+
+        const deltaX =
+            currentX -
+            startX;
+
+        const deltaY =
+            currentY -
+            startY;
+
+        // ----------------------------------------------
+        // Move ORIGINAL rectangle corners
+        // ----------------------------------------------
+
+        const newStartScreen = {
+
+            x:
+                this.originalStartScreen.x +
+                deltaX,
+
+            y:
+                this.originalStartScreen.y +
+                deltaY,
+
+        };
+
+        const newEndScreen = {
+
+            x:
+                this.originalEndScreen.x +
+                deltaX,
+
+            y:
+                this.originalEndScreen.y +
+                deltaY,
+
+        };
+
+        // ----------------------------------------------
+        // Convert screen coordinates back to chart
+        // coordinates
+        // ----------------------------------------------
+
+        const newStart =
+            this.getChartPoint(
+                newStartScreen.x,
+                newStartScreen.y,
+                chart,
+                series,
+            );
+
+        const newEnd =
+            this.getChartPoint(
+                newEndScreen.x,
+                newEndScreen.y,
+                chart,
+                series,
+            );
+
+        if (
+            !newStart ||
+            !newEnd
+        ) {
+            return;
+        }
+
+        // ----------------------------------------------
+        // Create COMPLETE drawing
+        // ----------------------------------------------
+
+        const updatedDrawing:
+            RectangleDrawing = {
+
+            ...rectangle,
+
+            start:
+                newStart,
+
+            end:
+                newEnd,
+
+        };
+
+        // ----------------------------------------------
+        // Update store
+        // ----------------------------------------------
+
+        useDrawingStore
+            .getState()
+            .updateDrawing(
+                rectangle.id,
+                updatedDrawing,
+            );
+
+    }
+
+    // --------------------------------------------------
+    // MOVE END
+    // --------------------------------------------------
+
+    onMoveEnd(
+        x: number,
+        y: number,
+        drawing: Drawing,
+        chart: IChartApi,
+        series: ISeriesApi<"Candlestick">,
+    ) {
+
+        // ----------------------------------------------
+        // Clear temporary drag state
+        // ----------------------------------------------
+
+        this.movingDrawingId =
+            null;
+
+        this.moveStartX =
+            0;
+
+        this.moveStartY =
+            0;
+
+        this.originalStartScreen =
+            null;
+
+        this.originalEndScreen =
+            null;
+
+    }
+
+    // --------------------------------------------------
+    // DRAW
+    // --------------------------------------------------
+
     draw(
         ctx: CanvasRenderingContext2D,
-        drawing: RectangleDrawing,
+        drawing: Drawing,
         chart: IChartApi,
         series: ISeriesApi<"Candlestick">,
         selected: boolean,
         hovered: boolean,
     ) {
 
+        if (
+            drawing.type !== "rectangle"
+        ) {
+            return;
+        }
+
+        const rectangle =
+            drawing as RectangleDrawing;
+
+        // ----------------------------------------------
+        // Convert chart coordinates to screen
+        // ----------------------------------------------
+
         const start =
             chartToScreen(
                 chart,
                 series,
-                drawing.start.time,
-                drawing.start.price,
+                rectangle.start.time,
+                rectangle.start.price,
             );
 
         const end =
             chartToScreen(
                 chart,
                 series,
-                drawing.end.time,
-                drawing.end.price,
+                rectangle.end.time,
+                rectangle.end.price,
             );
 
-        if (!start || !end)
+        if (
+            !start ||
+            !end
+        ) {
             return;
+        }
+
+        // ----------------------------------------------
+        // Calculate rectangle bounds
+        // ----------------------------------------------
 
         const left =
             Math.min(
@@ -232,16 +550,22 @@ export class RectangleTool implements DrawingTool {
 
         const width =
             Math.abs(
-                end.x - start.x,
+                end.x -
+                start.x,
             );
 
         const height =
             Math.abs(
-                end.y - start.y,
+                end.y -
+                start.y,
             );
 
+        // ----------------------------------------------
+        // Fill
+        // ----------------------------------------------
+
         ctx.fillStyle =
-            drawing.fillColor;
+            rectangle.fillColor;
 
         ctx.fillRect(
             left,
@@ -250,15 +574,19 @@ export class RectangleTool implements DrawingTool {
             height,
         );
 
+        // ----------------------------------------------
+        // Border
+        // ----------------------------------------------
+
         ctx.strokeStyle =
             hovered
                 ? "#60a5fa"
-                : drawing.color;
+                : rectangle.color;
 
         ctx.lineWidth =
             hovered
-                ? drawing.borderWidth + 1
-                : drawing.borderWidth;
+                ? rectangle.borderWidth + 1
+                : rectangle.borderWidth;
 
         ctx.strokeRect(
             left,
@@ -267,12 +595,19 @@ export class RectangleTool implements DrawingTool {
             height,
         );
 
-        if (!selected)
+        // ----------------------------------------------
+        // Handles
+        // ----------------------------------------------
+
+        if (!selected) {
             return;
+        }
 
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle =
+            "#ffffff";
 
-        ctx.strokeStyle = drawing.color;
+        ctx.strokeStyle =
+            rectangle.color;
 
         ctx.lineWidth = 2;
 
@@ -288,12 +623,16 @@ export class RectangleTool implements DrawingTool {
 
     }
 
+    // --------------------------------------------------
+    // HANDLE
+    // --------------------------------------------------
+
     private drawHandle(
         ctx: CanvasRenderingContext2D,
         point: {
             x: number;
             y: number;
-        }
+        },
     ) {
 
         ctx.beginPath();
@@ -312,38 +651,80 @@ export class RectangleTool implements DrawingTool {
 
     }
 
+    // --------------------------------------------------
+    // CANCEL
+    // --------------------------------------------------
+
     onCancel() {
 
         this.reset();
 
+        // Also clear any stale movement state.
+
+        this.movingDrawingId =
+            null;
+
+        this.moveStartX =
+            0;
+
+        this.moveStartY =
+            0;
+
+        this.originalStartScreen =
+            null;
+
+        this.originalEndScreen =
+            null;
+
     }
+
+    // --------------------------------------------------
+    // HIT TEST
+    // --------------------------------------------------
 
     hitTest(
         x: number,
         y: number,
-        drawing: RectangleDrawing,
+        drawing: Drawing,
         chart: IChartApi,
-        series: ISeriesApi<"Candlestick">
+        series: ISeriesApi<"Candlestick">,
     ) {
+
+        if (
+            drawing.type !== "rectangle"
+        ) {
+            return false;
+        }
+
+        const rectangle =
+            drawing as RectangleDrawing;
 
         const start =
             chartToScreen(
                 chart,
                 series,
-                drawing.start.time,
-                drawing.start.price,
+                rectangle.start.time,
+                rectangle.start.price,
             );
 
         const end =
             chartToScreen(
                 chart,
                 series,
-                drawing.end.time,
-                drawing.end.price,
+                rectangle.end.time,
+                rectangle.end.price,
             );
 
-        if (!start || !end)
+        if (
+            !start ||
+            !end
+        ) {
             return false;
+        }
+
+        // ----------------------------------------------
+        // Rectangle bounds
+        // ----------------------------------------------
 
         const left =
             Math.min(
@@ -370,6 +751,10 @@ export class RectangleTool implements DrawingTool {
             );
 
         const tolerance = 6;
+
+        // ----------------------------------------------
+        // Check edges
+        // ----------------------------------------------
 
         const nearLeft =
             Math.abs(x - left) <= tolerance &&

@@ -5,13 +5,28 @@ import {
 
 import { DrawingTool } from "@/src/types/trading/drawing-tool";
 
-import { HorizontalLineDrawing } from "@/src/types/trading/drawing";
+import {
+    Drawing,
+    HorizontalLineDrawing,
+} from "@/src/types/trading/drawing";
 
 import { useDrawingStore } from "@/src/store/drawing.store";
 
 import { screenToChart } from "../screen-to-chart.helper";
 
 export class HorizontalLineTool implements DrawingTool {
+
+    // --------------------------------------------------
+    // Drag state
+    // --------------------------------------------------
+
+    private movingDrawingId: string | null = null;
+
+    private originalY: number | null = null;
+
+    // --------------------------------------------------
+    // Helpers
+    // --------------------------------------------------
 
     private getChartPoint(
         x: number,
@@ -29,6 +44,10 @@ export class HorizontalLineTool implements DrawingTool {
 
     }
 
+    // --------------------------------------------------
+    // CREATE
+    // --------------------------------------------------
+
     onClick(
         x: number,
         y: number,
@@ -44,8 +63,9 @@ export class HorizontalLineTool implements DrawingTool {
                 series,
             );
 
-        if (!point)
+        if (!point) {
             return;
+        }
 
         useDrawingStore
             .getState()
@@ -65,28 +85,250 @@ export class HorizontalLineTool implements DrawingTool {
 
     }
 
-    onMouseDown() {}
+    // --------------------------------------------------
+    // MOUSE DOWN
+    // --------------------------------------------------
 
-    onMouseMove() {}
+    onMouseDown() {
+        // Horizontal lines are created with click.
+        // Existing drawing movement uses
+        // onMoveStart / onMove / onMoveEnd.
+    }
 
-    onMouseUp() {}
+    // --------------------------------------------------
+    // MOUSE MOVE
+    // --------------------------------------------------
+
+    onMouseMove() {
+        // No creation preview is required.
+    }
+
+    // --------------------------------------------------
+    // MOUSE UP
+    // --------------------------------------------------
+
+    onMouseUp() {
+        // Horizontal lines are created on click.
+    }
+
+    // --------------------------------------------------
+    // MOVE START
+    // --------------------------------------------------
+
+    onMoveStart(
+        x: number,
+        y: number,
+        drawing: Drawing,
+        chart: IChartApi,
+        series: ISeriesApi<"Candlestick">
+    ) {
+
+        if (
+            drawing.type !== "horizontal"
+        ) {
+            return;
+        }
+
+        const horizontalLine =
+            drawing as HorizontalLineDrawing;
+
+        // ----------------------------------------------
+        // Convert original price to screen Y
+        // ----------------------------------------------
+
+        const originalY =
+            series.priceToCoordinate(
+                horizontalLine.price,
+            );
+
+        if (originalY === null) {
+            return;
+        }
+
+        // ----------------------------------------------
+        // Store drag state
+        // ----------------------------------------------
+
+        this.movingDrawingId =
+            horizontalLine.id;
+
+        /*
+         * Store the ORIGINAL screen Y position
+         * of the line.
+         *
+         * This value never changes during the drag.
+         */
+        this.originalY =
+            originalY;
+
+    }
+
+    // --------------------------------------------------
+    // MOVE
+    // --------------------------------------------------
+
+    onMove(
+        drawing: Drawing,
+        startX: number,
+        startY: number,
+        currentX: number,
+        currentY: number,
+        chart: IChartApi,
+        series: ISeriesApi<"Candlestick">
+    ) {
+
+        if (
+            drawing.type !== "horizontal"
+        ) {
+            return;
+        }
+
+        const horizontalLine =
+            drawing as HorizontalLineDrawing;
+
+        // ----------------------------------------------
+        // Make sure this is the drawing being moved
+        // ----------------------------------------------
+
+        if (
+            this.movingDrawingId !==
+            horizontalLine.id
+        ) {
+            return;
+        }
+
+        if (
+            this.originalY === null
+        ) {
+            return;
+        }
+
+        // ----------------------------------------------
+        // Calculate vertical movement
+        // ----------------------------------------------
+
+        /*
+         * Horizontal lines only care about Y.
+         *
+         * X movement is intentionally ignored.
+         */
+        const deltaY =
+            currentY -
+            startY;
+
+        // ----------------------------------------------
+        // Move ORIGINAL Y position
+        // ----------------------------------------------
+
+        const newY =
+            this.originalY +
+            deltaY;
+
+        // ----------------------------------------------
+        // Convert screen Y -> chart price
+        // ----------------------------------------------
+
+        /*
+         * We only need the price from the converted
+         * point. The X coordinate has no importance
+         * for a horizontal line.
+         */
+        const point =
+            this.getChartPoint(
+                currentX,
+                newY,
+                chart,
+                series,
+            );
+
+        if (!point) {
+            return;
+        }
+
+        // ----------------------------------------------
+        // Create COMPLETE drawing
+        // ----------------------------------------------
+
+        const updatedDrawing: HorizontalLineDrawing = {
+
+            ...horizontalLine,
+
+            price:
+                point.price,
+
+        };
+
+        // ----------------------------------------------
+        // Update store
+        // ----------------------------------------------
+
+        useDrawingStore
+            .getState()
+            .updateDrawing(
+                horizontalLine.id,
+                updatedDrawing,
+            );
+
+    }
+
+    // --------------------------------------------------
+    // MOVE END
+    // --------------------------------------------------
+
+    onMoveEnd(
+        x: number,
+        y: number,
+        drawing: Drawing,
+        chart: IChartApi,
+        series: ISeriesApi<"Candlestick">
+    ) {
+
+        /*
+         * Clear temporary drag state.
+         */
+
+        this.movingDrawingId =
+            null;
+
+        this.originalY =
+            null;
+
+    }
+
+    // --------------------------------------------------
+    // DRAW
+    // --------------------------------------------------
 
     draw(
         ctx: CanvasRenderingContext2D,
-        drawing: HorizontalLineDrawing,
+        drawing: Drawing,
         chart: IChartApi,
         series: ISeriesApi<"Candlestick">,
         selected: boolean,
         hovered: boolean,
     ) {
 
+        if (
+            drawing.type !== "horizontal"
+        ) {
+            return;
+        }
+
+        const horizontalLine =
+            drawing as HorizontalLineDrawing;
+
         const y =
             series.priceToCoordinate(
-                drawing.price,
+                horizontalLine.price,
             );
 
-        if (y === null)
+        if (y === null) {
             return;
+        }
+
+        // ----------------------------------------------
+        // Line
+        // ----------------------------------------------
 
         ctx.beginPath();
 
@@ -103,21 +345,28 @@ export class HorizontalLineTool implements DrawingTool {
         ctx.strokeStyle =
             hovered
                 ? "#60a5fa"
-                : drawing.color;
+                : horizontalLine.color;
 
         ctx.lineWidth =
             hovered
-                ? drawing.width + 1
-                : drawing.width;
+                ? horizontalLine.width + 1
+                : horizontalLine.width;
 
         ctx.stroke();
 
-        if (!selected)
+        // ----------------------------------------------
+        // Handles
+        // ----------------------------------------------
+
+        if (!selected) {
             return;
+        }
 
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle =
+            "#ffffff";
 
-        ctx.strokeStyle = drawing.color;
+        ctx.strokeStyle =
+            horizontalLine.color;
 
         ctx.lineWidth = 2;
 
@@ -134,6 +383,10 @@ export class HorizontalLineTool implements DrawingTool {
         );
 
     }
+
+    // --------------------------------------------------
+    // HANDLE
+    // --------------------------------------------------
 
     private drawHandle(
         ctx: CanvasRenderingContext2D,
@@ -157,23 +410,49 @@ export class HorizontalLineTool implements DrawingTool {
 
     }
 
-    onCancel() {}
+    // --------------------------------------------------
+    // CANCEL
+    // --------------------------------------------------
+
+    onCancel() {
+
+        this.movingDrawingId =
+            null;
+
+        this.originalY =
+            null;
+
+    }
+
+    // --------------------------------------------------
+    // HIT TEST
+    // --------------------------------------------------
 
     hitTest(
         x: number,
         y: number,
-        drawing: HorizontalLineDrawing,
+        drawing: Drawing,
         chart: IChartApi,
         series: ISeriesApi<"Candlestick">
     ) {
 
+        if (
+            drawing.type !== "horizontal"
+        ) {
+            return false;
+        }
+
+        const horizontalLine =
+            drawing as HorizontalLineDrawing;
+
         const coordinate =
             series.priceToCoordinate(
-                drawing.price,
+                horizontalLine.price,
             );
 
-        if (coordinate === null)
+        if (coordinate === null) {
             return false;
+        }
 
         const tolerance = 6;
 
