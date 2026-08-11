@@ -694,8 +694,8 @@ export class ArrowTool implements DrawingTool {
         y: number,
         drawing: Drawing,
         chart: IChartApi,
-        series: ISeriesApi<"Candlestick">
-    ) {
+        series: ISeriesApi<"Candlestick">,
+    ): boolean {
 
         if (
             drawing.type !== "arrow"
@@ -737,32 +737,76 @@ export class ArrowTool implements DrawingTool {
             end.y -
             start.y;
 
-        const length =
-            Math.sqrt(
-                dx * dx +
-                dy * dy,
-            );
+        const lengthSquared =
+            dx * dx +
+            dy * dy;
 
         if (
-            length === 0
+            lengthSquared === 0
         ) {
             return false;
         }
 
+        // ----------------------------------------------
+        // Project mouse onto the arrow segment
+        // ----------------------------------------------
+
+        const mouseX =
+            x -
+            start.x;
+
+        const mouseY =
+            y -
+            start.y;
+
+        let t =
+            (
+                mouseX * dx +
+                mouseY * dy
+            ) /
+            lengthSquared;
+
+        // ----------------------------------------------
+        // Keep projection inside the actual arrow
+        // ----------------------------------------------
+
+        t =
+            Math.max(
+                0,
+                Math.min(
+                    1,
+                    t,
+                ),
+            );
+
+        const closestX =
+            start.x +
+            t * dx;
+
+        const closestY =
+            start.y +
+            t * dy;
+
+        const distanceX =
+            x -
+            closestX;
+
+        const distanceY =
+            y -
+            closestY;
+
         const distance =
-            Math.abs(
+            Math.sqrt(
+                distanceX * distanceX +
+                distanceY * distanceY,
+            );
 
-                dy * x -
+        const tolerance =
+            8;
 
-                dx * y +
-
-                end.x * start.y -
-
-                end.y * start.x
-
-            ) / length;
-
-        return distance <= 6;
+        return (
+            distance <= tolerance
+        );
 
     }
 

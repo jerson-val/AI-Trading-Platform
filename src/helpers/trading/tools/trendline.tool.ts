@@ -621,7 +621,7 @@ export class TrendLineTool implements DrawingTool {
         drawing: Drawing,
         chart: IChartApi,
         series: ISeriesApi<"Candlestick">,
-    ) {
+    ): boolean {
 
         if (
             drawing.type !== "trendline"
@@ -663,32 +663,85 @@ export class TrendLineTool implements DrawingTool {
             end.y -
             start.y;
 
-        const length =
-            Math.sqrt(
-                dx * dx +
-                dy * dy,
-            );
+        const lengthSquared =
+            dx * dx +
+            dy * dy;
 
         if (
-            length === 0
+            lengthSquared === 0
         ) {
             return false;
         }
 
+        // ----------------------------------------------
+        // Project mouse position onto the line segment
+        // ----------------------------------------------
+
+        const mouseX =
+            x -
+            start.x;
+
+        const mouseY =
+            y -
+            start.y;
+
+        let t =
+            (
+                mouseX * dx +
+                mouseY * dy
+            ) /
+            lengthSquared;
+
+        // ----------------------------------------------
+        // IMPORTANT:
+        //
+        // The old implementation effectively allowed:
+        //
+        // t < 0
+        // t > 1
+        //
+        // which means the infinite line was selectable.
+        //
+        // Clamp the projection to the actual segment.
+        // ----------------------------------------------
+
+        t =
+            Math.max(
+                0,
+                Math.min(
+                    1,
+                    t,
+                ),
+            );
+
+        const closestX =
+            start.x +
+            t * dx;
+
+        const closestY =
+            start.y +
+            t * dy;
+
+        const distanceX =
+            x -
+            closestX;
+
+        const distanceY =
+            y -
+            closestY;
+
         const distance =
-            Math.abs(
+            Math.sqrt(
+                distanceX * distanceX +
+                distanceY * distanceY,
+            );
 
-                dy * x -
+        const tolerance =
+            8;
 
-                dx * y +
-
-                end.x * start.y -
-
-                end.y * start.x
-
-            ) / length;
-
-        return distance <= 6;
+        return (
+            distance <= tolerance
+        );
 
     }
 
