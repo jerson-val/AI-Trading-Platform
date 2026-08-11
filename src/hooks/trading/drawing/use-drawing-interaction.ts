@@ -4,6 +4,7 @@ import { useChartStore } from "@/src/store/chart-store.store";
 import { useDrawingStore } from "@/src/store/drawing.store";
 
 import { toolManager } from "@/src/helpers/trading/tools/tool-manager";
+import { isInsideDrawingArea } from "@/src/helpers/trading/drawing-area.helper";
 
 export function useDrawingInteraction(
     containerRef: RefObject<HTMLDivElement | null>,
@@ -118,6 +119,16 @@ export function useDrawingInteraction(
                 x,
                 y,
             } = getMousePosition(event);
+
+            if (
+                !isInsideDrawingArea(
+                    chart,
+                    x,
+                    y,
+                )
+            ) {
+                return;
+            }
 
             const store =
                 useDrawingStore.getState();
@@ -260,6 +271,8 @@ export function useDrawingInteraction(
                 y,
             } = getMousePosition(event);
 
+            const insideDrawingArea = isInsideDrawingArea( chart, x, y );
+
             const store =
                 useDrawingStore.getState();
 
@@ -330,6 +343,25 @@ export function useDrawingInteraction(
                 container.style.cursor =
                     "grabbing";
 
+                return;
+            }
+
+             /*
+            * ------------------------------------
+            * OUTSIDE DRAWING AREA
+            * ------------------------------------
+            */
+
+            if (!insideDrawingArea) {
+
+                store.setHoveredDrawingId(null);
+
+                container.style.cursor = "default";
+
+                /*
+                * Don't send the mouse position
+                * to the active drawing tool.
+                */
                 return;
             }
 
@@ -498,6 +530,30 @@ export function useDrawingInteraction(
                     y,
                 } = getMousePosition(event);
 
+                /*
+                * If the user releases over the
+                * price scale, don't create the
+                * drawing.
+                */
+                if (
+                    !isInsideDrawingArea(
+                        chart,
+                        x,
+                        y,
+                    )
+                ) {
+
+                    toolManager.cancel(
+                        mode,
+                    );
+
+                    store.setDrawingInteraction(
+                        "none",
+                    );
+
+                    return;
+                }
+
                 const tool =
                     toolManager.getTool(
                         mode,
@@ -556,6 +612,16 @@ export function useDrawingInteraction(
                 x,
                 y,
             } = getMousePosition(event);
+
+            if (
+                !isInsideDrawingArea(
+                    chart,
+                    x,
+                    y,
+                )
+            ) {
+                return;
+            }
 
             const drawing =
                 hitTestDrawings(
